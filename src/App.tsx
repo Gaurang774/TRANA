@@ -9,6 +9,9 @@ import Emergency from "./pages/Emergency";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import BedManagement from "./pages/BedManagement";
+import RoutePlanning from "./pages/RoutePlanning";
+import Reports from "./pages/Reports";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +26,9 @@ const App = () => (
           <Route path="/emergency" element={<Emergency />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/beds" element={<BedManagement />} />
+          <Route path="/routes" element={<RoutePlanning />} />
+          <Route path="/reports" element={<Reports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
