@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { Bell, Menu } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Bell, Menu, User, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface EmergencyHeaderProps {
   toggleSidebar: () => void;
@@ -10,12 +11,57 @@ interface EmergencyHeaderProps {
 
 const EmergencyHeader = ({ toggleSidebar }: EmergencyHeaderProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [userInitials, setUserInitials] = useState('');
+  
+  useEffect(() => {
+    // Check if user is logged in
+    const storedUserType = localStorage.getItem('userType');
+    const storedUserEmail = localStorage.getItem('userEmail');
+    
+    if (storedUserType && storedUserEmail) {
+      setIsLoggedIn(true);
+      setUserType(storedUserType);
+      
+      // Create initials from email (first letter + first letter after @)
+      const emailParts = storedUserEmail.split('@');
+      if (emailParts.length > 1) {
+        const initials = (emailParts[0][0] + emailParts[1][0]).toUpperCase();
+        setUserInitials(initials);
+      } else {
+        setUserInitials('U');
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
   
   const handleNotificationsClick = () => {
     toast({
       title: "Emergency Notifications",
       description: "No new emergency alerts at this time.",
     });
+  };
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+  
+  const handleProfileClick = () => {
+    navigate('/settings');
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem('userType');
+    localStorage.removeItem('userEmail');
+    setIsLoggedIn(false);
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate('/login');
   };
 
   return (
@@ -44,9 +90,37 @@ const EmergencyHeader = ({ toggleSidebar }: EmergencyHeaderProps) => {
             <Bell className="h-5 w-5" />
             <span className="absolute top-0 right-0 h-2 w-2 bg-medical-red rounded-full"></span>
           </Button>
-          <div className="h-8 w-8 bg-medical-green rounded-full flex items-center justify-center">
-            <span className="text-white font-bold">JD</span>
-          </div>
+          
+          {isLoggedIn ? (
+            <div className="flex items-center space-x-1">
+              <div 
+                onClick={handleProfileClick}
+                className={`h-8 w-8 rounded-full flex items-center justify-center cursor-pointer ${
+                  userType === 'doctor' ? 'bg-medical-blue' : 'bg-medical-green'
+                }`}
+              >
+                <span className="text-white font-bold">{userInitials}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleLogout}
+                className="text-sm"
+              >
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLoginClick}
+              className="flex items-center"
+            >
+              <LogIn className="h-4 w-4 mr-1" />
+              Login
+            </Button>
+          )}
         </div>
       </div>
     </header>
