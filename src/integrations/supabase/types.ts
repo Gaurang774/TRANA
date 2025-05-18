@@ -9,7 +9,276 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      ambulances: {
+        Row: {
+          ambulance_number: string
+          assigned_emergency_id: string | null
+          created_at: string
+          crew_members: Json | null
+          current_location: Json | null
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ambulance_number: string
+          assigned_emergency_id?: string | null
+          created_at?: string
+          crew_members?: Json | null
+          current_location?: Json | null
+          id?: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          ambulance_number?: string
+          assigned_emergency_id?: string | null
+          created_at?: string
+          crew_members?: Json | null
+          current_location?: Json | null
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambulances_assigned_emergency_id_fkey"
+            columns: ["assigned_emergency_id"]
+            isOneToOne: false
+            referencedRelation: "emergencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emergencies: {
+        Row: {
+          assigned_to: string | null
+          coordinates: Json | null
+          created_at: string
+          id: string
+          location: string
+          notes: string | null
+          priority: string
+          reported_by: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          coordinates?: Json | null
+          created_at?: string
+          id?: string
+          location: string
+          notes?: string | null
+          priority: string
+          reported_by?: string | null
+          status: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          coordinates?: Json | null
+          created_at?: string
+          id?: string
+          location?: string
+          notes?: string | null
+          priority?: string
+          reported_by?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergencies_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergencies_reported_by_fkey"
+            columns: ["reported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hospital_beds: {
+        Row: {
+          assigned_doctor_id: string | null
+          bed_number: string
+          created_at: string
+          department: string
+          id: string
+          notes: string | null
+          patient_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_doctor_id?: string | null
+          bed_number: string
+          created_at?: string
+          department: string
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_doctor_id?: string | null
+          bed_number?: string
+          created_at?: string
+          department?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospital_beds_assigned_doctor_id_fkey"
+            columns: ["assigned_doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_beds_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: string
+          specialty: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role: string
+          specialty?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: string
+          specialty?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          content: Json | null
+          created_at: string
+          generated_by: string | null
+          id: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routes: {
+        Row: {
+          ambulance_id: string | null
+          created_at: string
+          destination: string
+          distance: string | null
+          estimated_time: string | null
+          id: string
+          name: string
+          start_location: string
+          status: string
+          traffic_level: string | null
+          updated_at: string
+        }
+        Insert: {
+          ambulance_id?: string | null
+          created_at?: string
+          destination: string
+          distance?: string | null
+          estimated_time?: string | null
+          id?: string
+          name: string
+          start_location: string
+          status: string
+          traffic_level?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ambulance_id?: string | null
+          created_at?: string
+          destination?: string
+          distance?: string | null
+          estimated_time?: string | null
+          id?: string
+          name?: string
+          start_location?: string
+          status?: string
+          traffic_level?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_ambulance_id_fkey"
+            columns: ["ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
