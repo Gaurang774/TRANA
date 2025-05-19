@@ -1,18 +1,26 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
+    
+    // Store the current path in session storage for potential recovery
+    sessionStorage.setItem('lastErrorPath', location.pathname);
   }, [location.pathname]);
+
+  const handleReturnHome = () => {
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -27,8 +35,11 @@ const NotFound = () => {
         <p className="text-gray-500 mb-6">
           The page you're looking for doesn't exist or may have been moved.
         </p>
-        <Button asChild className="bg-medical-blue hover:bg-medical-blue/90">
-          <a href="/">Return to Command Center</a>
+        <Button 
+          className="bg-medical-blue hover:bg-medical-blue/90"
+          onClick={handleReturnHome}
+        >
+          Return to Command Center
         </Button>
       </div>
     </div>
