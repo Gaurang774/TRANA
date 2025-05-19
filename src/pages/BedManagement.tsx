@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState, useCallback } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,30 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Bed, Filter, Plus, RefreshCw } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
 
 interface HospitalBed {
   id: string;
@@ -25,17 +50,96 @@ interface HospitalBed {
   location: string;
 }
 
+interface FilterOptions {
+  department?: string;
+  type?: string;
+}
+
 const BedManagement = () => {
-  const beds: HospitalBed[] = [
-    { id: 'B1001', name: 'Bed 101', type: 'ICU', status: 'Occupied', patient: 'John Doe', admittedAt: '2025-05-16 08:30', department: 'Critical Care', location: 'Floor 3, Wing A' },
+  const initialBeds: HospitalBed[] = [
+    { id: 'B1001', name: 'Bed 101', type: 'ICU', status: 'Occupied', patient: 'Arjun Patel', admittedAt: '2025-05-16 08:30', department: 'Critical Care', location: 'Floor 3, Wing A' },
     { id: 'B1002', name: 'Bed 102', type: 'ICU', status: 'Available', department: 'Critical Care', location: 'Floor 3, Wing A' },
     { id: 'B1003', name: 'Bed 103', type: 'Emergency', status: 'Reserved', patient: 'Incoming', department: 'Emergency', location: 'Floor 1, ER' },
     { id: 'B1004', name: 'Bed 104', type: 'General', status: 'Available', department: 'General Medicine', location: 'Floor 2, Wing B' },
-    { id: 'B1005', name: 'Bed 105', type: 'Pediatric', status: 'Occupied', patient: 'Jane Smith', admittedAt: '2025-05-15 14:15', department: 'Pediatrics', location: 'Floor 4, Wing C' },
+    { id: 'B1005', name: 'Bed 105', type: 'Pediatric', status: 'Occupied', patient: 'Ananya Sharma', admittedAt: '2025-05-15 14:15', department: 'Pediatrics', location: 'Floor 4, Wing C' },
     { id: 'B1006', name: 'Bed 106', type: 'Maternity', status: 'Maintenance', department: 'Obstetrics', location: 'Floor 5, Wing D' },
     { id: 'B1007', name: 'Bed 107', type: 'General', status: 'Available', department: 'General Medicine', location: 'Floor 2, Wing B' },
-    { id: 'B1008', name: 'Bed 108', type: 'Emergency', status: 'Occupied', patient: 'Robert Johnson', admittedAt: '2025-05-17 09:45', department: 'Emergency', location: 'Floor 1, ER' },
+    { id: 'B1008', name: 'Bed 108', type: 'Emergency', status: 'Occupied', patient: 'Vikram Singh', admittedAt: '2025-05-17 09:45', department: 'Emergency', location: 'Floor 1, ER' },
   ];
+
+  const [beds, setBeds] = useState<HospitalBed[]>(initialBeds);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({});
+  const [isAddBedDialogOpen, setIsAddBedDialogOpen] = useState(false);
+
+  const form = useForm({
+    defaultValues: {
+      bedId: '',
+      bedName: '',
+      bedType: 'General',
+      department: 'General Medicine',
+      location: '',
+    }
+  });
+
+  const refreshBeds = () => {
+    // Simulate refresh with a slight delay
+    toast.promise(
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          setBeds([...initialBeds]);
+          resolve();
+        }, 500);
+      }),
+      {
+        loading: 'Refreshing bed status...',
+        success: 'Bed status refreshed successfully',
+        error: 'Failed to refresh bed status'
+      }
+    );
+  };
+
+  const applyFilters = useCallback(() => {
+    let filteredBeds = [...initialBeds];
+    
+    if (filterOptions.department) {
+      filteredBeds = filteredBeds.filter(bed => bed.department === filterOptions.department);
+    }
+    
+    if (filterOptions.type) {
+      filteredBeds = filteredBeds.filter(bed => bed.type === filterOptions.type);
+    }
+    
+    setBeds(filteredBeds);
+    setFilterOpen(false);
+    
+    toast.success('Filters applied');
+  }, [filterOptions]);
+
+  const resetFilters = () => {
+    setFilterOptions({});
+    setBeds([...initialBeds]);
+    setFilterOpen(false);
+    
+    toast.success('Filters reset');
+  };
+
+  const handleAddBed = (data: any) => {
+    const newBed: HospitalBed = {
+      id: data.bedId,
+      name: data.bedName,
+      type: data.bedType as any,
+      status: 'Available',
+      department: data.department,
+      location: data.location,
+    };
+    
+    setBeds(prev => [...prev, newBed]);
+    setIsAddBedDialogOpen(false);
+    form.reset();
+    
+    toast.success('New bed added successfully');
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,18 +165,186 @@ const BedManagement = () => {
         </div>
         
         <div className="flex items-center space-x-2 mt-4 md:mt-0">
-          <Button size="sm" variant="outline" className="flex items-center">
-            <Filter className="h-4 w-4 mr-1" />
-            Filter
-          </Button>
-          <Button size="sm" variant="outline" className="flex items-center">
+          <Dialog open={filterOpen} onOpenChange={setFilterOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="flex items-center">
+                <Filter className="h-4 w-4 mr-1" />
+                Filter
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Filter Beds</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <FormLabel>Department</FormLabel>
+                  <Select 
+                    value={filterOptions.department || ''} 
+                    onValueChange={(value) => setFilterOptions(prev => ({ ...prev, department: value || undefined }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Departments</SelectItem>
+                      <SelectItem value="Critical Care">Critical Care</SelectItem>
+                      <SelectItem value="Emergency">Emergency</SelectItem>
+                      <SelectItem value="General Medicine">General Medicine</SelectItem>
+                      <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                      <SelectItem value="Obstetrics">Obstetrics</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <FormLabel>Bed Type</FormLabel>
+                  <Select 
+                    value={filterOptions.type || ''}
+                    onValueChange={(value) => setFilterOptions(prev => ({ ...prev, type: value || undefined }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Types</SelectItem>
+                      <SelectItem value="ICU">ICU</SelectItem>
+                      <SelectItem value="Emergency">Emergency</SelectItem>
+                      <SelectItem value="General">General</SelectItem>
+                      <SelectItem value="Pediatric">Pediatric</SelectItem>
+                      <SelectItem value="Maternity">Maternity</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex justify-between pt-4">
+                  <Button variant="outline" onClick={resetFilters}>Reset</Button>
+                  <Button onClick={applyFilters}>Apply Filters</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Button size="sm" variant="outline" className="flex items-center" onClick={refreshBeds}>
             <RefreshCw className="h-4 w-4 mr-1" />
             Refresh
           </Button>
-          <Button size="sm" className="flex items-center">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Bed
-          </Button>
+          
+          <Dialog open={isAddBedDialogOpen} onOpenChange={setIsAddBedDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="flex items-center">
+                <Plus className="h-4 w-4 mr-1" />
+                Add Bed
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Bed</DialogTitle>
+              </DialogHeader>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleAddBed)} className="space-y-4 py-2">
+                  <FormField
+                    control={form.control}
+                    name="bedId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bed ID</FormLabel>
+                        <FormControl>
+                          <Input placeholder="B1009" {...field} required />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="bedName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bed Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Bed 109" {...field} required />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="bedType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bed Type</FormLabel>
+                        <Select 
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="ICU">ICU</SelectItem>
+                            <SelectItem value="Emergency">Emergency</SelectItem>
+                            <SelectItem value="General">General</SelectItem>
+                            <SelectItem value="Pediatric">Pediatric</SelectItem>
+                            <SelectItem value="Maternity">Maternity</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department</FormLabel>
+                        <Select 
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Critical Care">Critical Care</SelectItem>
+                            <SelectItem value="Emergency">Emergency</SelectItem>
+                            <SelectItem value="General Medicine">General Medicine</SelectItem>
+                            <SelectItem value="Pediatrics">Pediatrics</SelectItem>
+                            <SelectItem value="Obstetrics">Obstetrics</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Location</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Floor 2, Wing B" {...field} required />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="flex justify-end pt-4">
+                    <Button type="submit">Add Bed</Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
       
