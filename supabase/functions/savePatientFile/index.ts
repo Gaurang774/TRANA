@@ -34,7 +34,7 @@ serve(async (req) => {
     }
 
     // Get the request body
-    const { patientId, fileDetails, fileContent } = await req.json();
+    const { patientId, fileDetails, fileContent, userId } = await req.json();
 
     // Validate input
     if (!patientId || !fileDetails || !fileContent) {
@@ -44,6 +44,27 @@ serve(async (req) => {
       );
     }
 
+    // Decode base64 if provided as base64
+    let fileBuffer;
+    if (typeof fileContent === 'string' && fileContent.startsWith('data:')) {
+      // Handle data URL format 
+      const matches = fileContent.match(/^data:(.+);base64,(.+)$/);
+      
+      if (matches && matches.length === 3) {
+        const contentType = matches[1];
+        const base64Data = matches[2];
+        fileBuffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Invalid file content format' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // Assume direct binary data
+      fileBuffer = fileContent;
+    }
+
     // First, save the file content to storage
     const fileName = `${patientId}/${Date.now()}_${fileDetails.name}`.replace(/\s+/g, '_');
     
@@ -51,17 +72,27 @@ serve(async (req) => {
     const { data: storageData, error: storageError } = await supabaseClient
       .storage
       .from('patient_files')
-      .upload(fileName, fileContent, {
+      .upload(fileName, fileBuffer, {
         contentType: fileDetails.type,
+        cacheControl: '3600',
+        upsert: false
       });
 
     if (storageError) {
       console.error('Storage error:', storageError);
       return new Response(
-        JSON.stringify({ error: 'Failed to upload file' }),
+        JSON.stringify({ error: 'Failed to upload file', details: storageError }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Generate a public or signed URL for the file (depending on bucket privacy settings)
+    const { data: publicUrlData } = await supabaseClient
+      .storage
+      .from('patient_files')
+      .getPublicUrl(fileName);
+      
+    const publicUrl = publicUrlData?.publicUrl || '';
 
     // Then save file metadata to the database
     const { data, error } = await supabaseClient
@@ -72,25 +103,35 @@ serve(async (req) => {
         file_type: fileDetails.type,
         file_size: fileDetails.size,
         file_path: fileName,
+        public_url: publicUrl,
+        uploaded_by: userId || null,
       })
       .select();
 
     if (error) {
       console.error('DB error:', error);
       return new Response(
-        JSON.stringify({ error: 'Failed to save file metadata' }),
+        JSON.stringify({ error: 'Failed to save file metadata', details: error }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, data }),
+      JSON.stringify({
+        success: true,
+        data,
+        file: {
+          name: fileDetails.name,
+          url: publicUrl,
+          path: fileName,
+        }
+      }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error:', error);
     return new Response(
-      JSON.stringify({ error: 'Server error' }),
+      JSON.stringify({ error: 'Server error', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

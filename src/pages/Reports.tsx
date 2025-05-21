@@ -6,11 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FileText, Download, Upload, File, FilePlus, Search, RefreshCw } from 'lucide-react';
+import { 
+  FileText, Download, Upload, File, FilePlus, Search, 
+  RefreshCw, Trash2, Filter, Calendar, User
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const Reports = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('reports');
   const [reports, setReports] = useState([]);
   const [patientFiles, setPatientFiles] = useState([]);
@@ -18,6 +23,10 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedPatientId, setSelectedPatientId] = useState('PAT-001');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [filterType, setFilterType] = useState('all');
 
   // Sample data - would be replaced with real data from Supabase
   const demoReports = [
@@ -34,6 +43,15 @@ const Reports = () => {
     { id: 'file-003', name: 'Arjun Singh X-Ray Results', patientId: 'PAT-003', date: '2023-05-12', type: 'Imaging', size: '5.2 MB' },
     { id: 'file-004', name: 'Neha Gupta Treatment Plan', patientId: 'PAT-004', date: '2023-05-18', type: 'Treatment', size: '1.1 MB' },
     { id: 'file-005', name: 'Vikram Reddy Follow-up Notes', patientId: 'PAT-005', date: '2023-05-20', type: 'Notes', size: '0.8 MB' },
+  ];
+
+  // Patient sample data
+  const patients = [
+    { id: 'PAT-001', name: 'Rakesh Sharma', age: 45 },
+    { id: 'PAT-002', name: 'Priya Patel', age: 32 },
+    { id: 'PAT-003', name: 'Arjun Singh', age: 28 },
+    { id: 'PAT-004', name: 'Neha Gupta', age: 52 },
+    { id: 'PAT-005', name: 'Vikram Reddy', age: 64 },
   ];
 
   useEffect(() => {
@@ -81,7 +99,14 @@ const Reports = () => {
   const handleFileUpload = async (e) => {
     e.preventDefault();
     
-    if (!selectedFile) return;
+    if (!selectedFile || !selectedPatientId) {
+      toast({
+        title: "Upload Error",
+        description: "Please select a file and patient ID",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Show progress simulation
     let progress = 0;
@@ -92,13 +117,16 @@ const Reports = () => {
       if (progress >= 100) {
         clearInterval(interval);
         
-        // Add the uploaded file to the list (in a real app, this would be stored in Supabase)
+        // In a real implementation, this would use the Supabase edge function
+        // to upload the file and store metadata
+        
+        // Add the uploaded file to the list
         const newFile = {
           id: `file-${Date.now()}`,
           name: selectedFile.name,
-          patientId: 'PAT-NEW',
+          patientId: selectedPatientId,
           date: new Date().toISOString().split('T')[0],
-          type: 'User Upload',
+          type: getFileType(selectedFile.name),
           size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`
         };
         
@@ -106,16 +134,77 @@ const Reports = () => {
         setSelectedFile(null);
         setUploadProgress(0);
         
-        // Show success message (would use toast in a full implementation)
-        alert('File uploaded successfully');
+        toast({
+          title: "File Uploaded",
+          description: `${selectedFile.name} has been successfully uploaded for patient ${selectedPatientId}`,
+        });
       }
     }, 300);
   };
 
+  const getFileType = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) return 'Image';
+    if (['pdf'].includes(extension)) return 'Document';
+    if (['doc', 'docx'].includes(extension)) return 'Medical Record';
+    if (['xls', 'xlsx', 'csv'].includes(extension)) return 'Lab Report';
+    return 'Other';
+  };
+
   const downloadFile = (fileId) => {
     // In a real app, this would get the file from Supabase storage
-    alert(`Downloading file ${fileId}`);
+    const file = patientFiles.find(f => f.id === fileId);
+    if (file) {
+      toast({
+        title: "Download Started",
+        description: `Downloading ${file.name}`,
+      });
+    }
   };
+
+  const deleteFile = (fileId) => {
+    // In a real app, this would delete the file from Supabase storage
+    const updatedFiles = patientFiles.filter(file => file.id !== fileId);
+    setPatientFiles(updatedFiles);
+    
+    toast({
+      title: "File Deleted",
+      description: "The file has been removed",
+    });
+  };
+
+  const sortedPatientFiles = [...patientFiles].sort((a, b) => {
+    if (sortBy === 'date') {
+      return sortOrder === 'asc' 
+        ? new Date(a.date) - new Date(b.date) 
+        : new Date(b.date) - new Date(a.date);
+    } else if (sortBy === 'name') {
+      return sortOrder === 'asc' 
+        ? a.name.localeCompare(b.name) 
+        : b.name.localeCompare(a.name);
+    } else if (sortBy === 'size') {
+      const sizeA = parseFloat(a.size);
+      const sizeB = parseFloat(b.size);
+      return sortOrder === 'asc' ? sizeA - sizeB : sizeB - sizeA;
+    }
+    return 0;
+  }).filter(file => {
+    if (filterType === 'all') return true;
+    return file.type.toLowerCase().includes(filterType.toLowerCase());
+  });
+
+  const sortedReports = [...reports].sort((a, b) => {
+    if (sortBy === 'date') {
+      return sortOrder === 'asc' 
+        ? new Date(a.date) - new Date(b.date) 
+        : new Date(b.date) - new Date(a.date);
+    } else if (sortBy === 'title') {
+      return sortOrder === 'asc' 
+        ? a.title.localeCompare(b.title) 
+        : b.title.localeCompare(a.title);
+    }
+    return 0;
+  });
 
   return (
     <Layout>
@@ -148,7 +237,7 @@ const Reports = () => {
             }}
           >
             <CardHeader className="pb-0">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <TabsList>
                   <TabsTrigger value="reports">
                     <FileText className="mr-2 h-4 w-4" />
@@ -160,15 +249,43 @@ const Reports = () => {
                   </TabsTrigger>
                 </TabsList>
                 
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="text"
-                    placeholder="Search..."
-                    className="pl-9 h-9 w-[200px]"
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value)}
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input
+                      type="text"
+                      placeholder="Search..."
+                      className="pl-9 h-9 w-[200px]"
+                      value={searchQuery}
+                      onChange={(e) => handleSearch(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <select 
+                      className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                    >
+                      <option value="date">Sort by Date</option>
+                      {activeTab === 'reports' ? (
+                        <option value="title">Sort by Title</option>
+                      ) : (
+                        <>
+                          <option value="name">Sort by Name</option>
+                          <option value="size">Sort by Size</option>
+                        </>
+                      )}
+                    </select>
+                    
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                    >
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -189,8 +306,8 @@ const Reports = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {reports.map((report) => (
-                          <tr key={report.id} className="border-b">
+                        {sortedReports.map((report) => (
+                          <tr key={report.id} className="border-b hover:bg-gray-50">
                             <td className="py-3 px-4 text-sm">{report.id}</td>
                             <td className="py-3 px-4 text-sm font-medium">{report.title}</td>
                             <td className="py-3 px-4 text-sm">{report.date}</td>
@@ -203,9 +320,14 @@ const Reports = () => {
                               </span>
                             </td>
                             <td className="py-3 px-4">
-                              <Button variant="ghost" size="sm" onClick={() => downloadFile(report.id)}>
-                                <Download className="h-4 w-4" />
-                              </Button>
+                              <div className="flex space-x-2">
+                                <Button variant="ghost" size="sm" onClick={() => downloadFile(report.id)}>
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -218,33 +340,80 @@ const Reports = () => {
               <TabsContent value="patient-files">
                 <div className="space-y-6">
                   <Card className="border p-4">
-                    <form onSubmit={handleFileUpload} className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <div className="flex-grow">
-                        <Input 
-                          type="file" 
-                          id="file-upload" 
-                          onChange={handleFileChange}
-                          className="cursor-pointer"
-                        />
-                      </div>
-                      <Button type="submit" disabled={!selectedFile}>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload File
-                      </Button>
-                    </form>
-                    
-                    {uploadProgress > 0 && uploadProgress < 100 && (
-                      <div className="mt-2">
-                        <div className="h-2 bg-gray-200 rounded-full mt-1.5">
-                          <div 
-                            className="h-2 bg-medical-blue rounded-full" 
-                            style={{ width: `${uploadProgress}%` }}
-                          ></div>
+                    <form onSubmit={handleFileUpload} className="space-y-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <div className="flex-grow">
+                          <Input 
+                            type="file" 
+                            id="file-upload" 
+                            onChange={handleFileChange}
+                            className="cursor-pointer"
+                          />
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Uploading: {uploadProgress}%</p>
+                        <div className="flex items-center space-x-2">
+                          <select 
+                            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                            value={selectedPatientId}
+                            onChange={(e) => setSelectedPatientId(e.target.value)}
+                          >
+                            {patients.map(patient => (
+                              <option key={patient.id} value={patient.id}>
+                                {patient.name} ({patient.id})
+                              </option>
+                            ))}
+                          </select>
+                          <Button type="submit" disabled={!selectedFile}>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload
+                          </Button>
+                        </div>
                       </div>
-                    )}
+                      
+                      {uploadProgress > 0 && uploadProgress < 100 && (
+                        <div>
+                          <div className="h-2 bg-gray-200 rounded-full mt-1.5">
+                            <div 
+                              className="h-2 bg-medical-blue rounded-full" 
+                              style={{ width: `${uploadProgress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Uploading: {uploadProgress}%</p>
+                        </div>
+                      )}
+                    </form>
                   </Card>
+
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="text-sm font-medium">Filter by type:</span>
+                    <Button 
+                      variant={filterType === 'all' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilterType('all')}
+                    >
+                      All
+                    </Button>
+                    <Button 
+                      variant={filterType === 'medical' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilterType('medical')}
+                    >
+                      Medical Records
+                    </Button>
+                    <Button 
+                      variant={filterType === 'lab' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilterType('lab')}
+                    >
+                      Lab Reports
+                    </Button>
+                    <Button 
+                      variant={filterType === 'imaging' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilterType('imaging')}
+                    >
+                      Imaging
+                    </Button>
+                  </div>
 
                   <div className="rounded-md border">
                     <div className="overflow-x-auto">
@@ -260,17 +429,27 @@ const Reports = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {patientFiles.map((file) => (
-                            <tr key={file.id} className="border-b">
+                          {sortedPatientFiles.map((file) => (
+                            <tr key={file.id} className="border-b hover:bg-gray-50">
                               <td className="py-3 px-4 text-sm font-medium">{file.name}</td>
                               <td className="py-3 px-4 text-sm">{file.patientId}</td>
                               <td className="py-3 px-4 text-sm">{file.date}</td>
                               <td className="py-3 px-4 text-sm">{file.type}</td>
                               <td className="py-3 px-4 text-sm">{file.size}</td>
                               <td className="py-3 px-4">
-                                <Button variant="ghost" size="sm" onClick={() => downloadFile(file.id)}>
-                                  <Download className="h-4 w-4" />
-                                </Button>
+                                <div className="flex space-x-2">
+                                  <Button variant="ghost" size="sm" onClick={() => downloadFile(file.id)}>
+                                    <Download className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => deleteFile(file.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}
