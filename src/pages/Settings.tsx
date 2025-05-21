@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,21 +8,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Settings as SettingsIcon, Bell, User, Map, Lock, Shield, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/components/ThemeProvider';
 
 const Settings = () => {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [mapApiKey, setMapApiKey] = useState(localStorage.getItem('google_maps_api_key') || '');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(theme === 'dark');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(5);
   const [useHighPrecisionLocation, setUseHighPrecisionLocation] = useState(true);
+
+  // Update darkMode state when theme changes
+  useEffect(() => {
+    setDarkMode(theme === 'dark');
+  }, [theme]);
 
   const handleSaveSettings = (settingType: string) => {
     toast({
       title: "Settings saved",
       description: `Your ${settingType} settings have been updated successfully.`,
     });
+  };
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setDarkMode(checked);
+    setTheme(checked ? 'dark' : 'light');
   };
 
   const handleSaveMapApiKey = () => {
@@ -86,8 +97,38 @@ const Settings = () => {
                     </div>
                     <Switch 
                       checked={darkMode}
-                      onCheckedChange={(checked) => setDarkMode(checked)}
+                      onCheckedChange={handleDarkModeToggle}
                     />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Theme</p>
+                      <p className="text-sm text-gray-500">Choose your preferred theme</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button 
+                        variant={theme === 'light' ? 'default' : 'outline'} 
+                        size="sm"
+                        onClick={() => setTheme('light')}
+                      >
+                        Light
+                      </Button>
+                      <Button
+                        variant={theme === 'dark' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTheme('dark')}
+                      >
+                        Dark
+                      </Button>
+                      <Button
+                        variant={theme === 'system' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTheme('system')}
+                      >
+                        System
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="flex items-center justify-between">
