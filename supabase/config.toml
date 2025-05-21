@@ -20,6 +20,9 @@ realtime = true
 [functions.savePatientFile]
 verify_jwt = true
 
+[functions.tranaPatientFile]
+verify_jwt = true
+
 [storage]
 # File size limit for uploads in bytes
 file_size_limit = "50MiB"

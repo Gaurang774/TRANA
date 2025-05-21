@@ -52,7 +52,7 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
         <div className="px-6 py-4 border-b">
           <div className="flex items-center">
             <Ambulance className="h-8 w-8 text-medical-red" />
-            <h1 className="ml-3 text-xl font-bold text-gray-800">MediEmergency</h1>
+            <h1 className="ml-3 text-xl font-bold text-gray-800">Trana</h1>
           </div>
         </div>
         

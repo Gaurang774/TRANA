@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -38,16 +37,16 @@ const Reports = () => {
   ];
 
   const demoPatientFiles = [
-    { id: 'file-001', name: 'Rakesh Sharma Medical History', patientId: 'PAT-001', date: '2023-04-10', type: 'Medical Record', size: '2.4 MB' },
+    { id: 'file-001', name: 'Rajesh Sharma Medical History', patientId: 'PAT-001', date: '2023-04-10', type: 'Medical Record', size: '2.4 MB' },
     { id: 'file-002', name: 'Priya Patel Lab Results', patientId: 'PAT-002', date: '2023-05-05', type: 'Lab Report', size: '1.8 MB' },
     { id: 'file-003', name: 'Arjun Singh X-Ray Results', patientId: 'PAT-003', date: '2023-05-12', type: 'Imaging', size: '5.2 MB' },
     { id: 'file-004', name: 'Neha Gupta Treatment Plan', patientId: 'PAT-004', date: '2023-05-18', type: 'Treatment', size: '1.1 MB' },
     { id: 'file-005', name: 'Vikram Reddy Follow-up Notes', patientId: 'PAT-005', date: '2023-05-20', type: 'Notes', size: '0.8 MB' },
   ];
 
-  // Patient sample data
+  // Patient sample data with Indian names
   const patients = [
-    { id: 'PAT-001', name: 'Rakesh Sharma', age: 45 },
+    { id: 'PAT-001', name: 'Rajesh Sharma', age: 45 },
     { id: 'PAT-002', name: 'Priya Patel', age: 32 },
     { id: 'PAT-003', name: 'Arjun Singh', age: 28 },
     { id: 'PAT-004', name: 'Neha Gupta', age: 52 },
@@ -183,8 +182,14 @@ const Reports = () => {
         ? a.name.localeCompare(b.name) 
         : b.name.localeCompare(a.name);
     } else if (sortBy === 'size') {
-      const sizeA = parseFloat(a.size);
-      const sizeB = parseFloat(b.size);
+      // Convert '2.4 MB' to number for comparison
+      const getSizeInMB = (sizeStr) => {
+        const match = sizeStr.match(/(\d+\.?\d*)/);
+        return match ? parseFloat(match[0]) : 0;
+      };
+      
+      const sizeA = getSizeInMB(a.size);
+      const sizeB = getSizeInMB(b.size);
       return sortOrder === 'asc' ? sizeA - sizeB : sizeB - sizeA;
     }
     return 0;
