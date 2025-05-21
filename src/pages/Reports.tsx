@@ -1,22 +1,288 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FileText, Download, Upload, File, FilePlus, Search, RefreshCw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Reports = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('reports');
+  const [reports, setReports] = useState([]);
+  const [patientFiles, setPatientFiles] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Sample data - would be replaced with real data from Supabase
+  const demoReports = [
+    { id: 'rep-001', title: 'Monthly Emergency Summary', date: '2023-05-15', type: 'Summary', status: 'Complete' },
+    { id: 'rep-002', title: 'Ambulance Response Times', date: '2023-05-10', type: 'Analysis', status: 'Complete' },
+    { id: 'rep-003', title: 'Hospital Bed Occupancy', date: '2023-05-20', type: 'Dashboard', status: 'Processing' },
+    { id: 'rep-004', title: 'Critical Care Statistics', date: '2023-05-18', type: 'Analytics', status: 'Complete' },
+    { id: 'rep-005', title: 'Emergency Response Outcomes', date: '2023-05-05', type: 'Summary', status: 'Complete' },
+  ];
+
+  const demoPatientFiles = [
+    { id: 'file-001', name: 'Rakesh Sharma Medical History', patientId: 'PAT-001', date: '2023-04-10', type: 'Medical Record', size: '2.4 MB' },
+    { id: 'file-002', name: 'Priya Patel Lab Results', patientId: 'PAT-002', date: '2023-05-05', type: 'Lab Report', size: '1.8 MB' },
+    { id: 'file-003', name: 'Arjun Singh X-Ray Results', patientId: 'PAT-003', date: '2023-05-12', type: 'Imaging', size: '5.2 MB' },
+    { id: 'file-004', name: 'Neha Gupta Treatment Plan', patientId: 'PAT-004', date: '2023-05-18', type: 'Treatment', size: '1.1 MB' },
+    { id: 'file-005', name: 'Vikram Reddy Follow-up Notes', patientId: 'PAT-005', date: '2023-05-20', type: 'Notes', size: '0.8 MB' },
+  ];
+
+  useEffect(() => {
+    // This would fetch real data from Supabase in a production environment
+    setReports(demoReports);
+    setPatientFiles(demoPatientFiles);
+  }, []);
+
+  const handleRefresh = () => {
+    setLoading(true);
+    
+    // Simulate fetching data
+    setTimeout(() => {
+      setReports(demoReports);
+      setPatientFiles(demoPatientFiles);
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    
+    if (activeTab === 'reports') {
+      const filteredReports = demoReports.filter(report => 
+        report.title.toLowerCase().includes(query.toLowerCase()) || 
+        report.type.toLowerCase().includes(query.toLowerCase())
+      );
+      setReports(filteredReports);
+    } else {
+      const filteredFiles = demoPatientFiles.filter(file => 
+        file.name.toLowerCase().includes(query.toLowerCase()) || 
+        file.patientId.toLowerCase().includes(query.toLowerCase()) ||
+        file.type.toLowerCase().includes(query.toLowerCase())
+      );
+      setPatientFiles(filteredFiles);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedFile) return;
+    
+    // Show progress simulation
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setUploadProgress(progress);
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        
+        // Add the uploaded file to the list (in a real app, this would be stored in Supabase)
+        const newFile = {
+          id: `file-${Date.now()}`,
+          name: selectedFile.name,
+          patientId: 'PAT-NEW',
+          date: new Date().toISOString().split('T')[0],
+          type: 'User Upload',
+          size: `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB`
+        };
+        
+        setPatientFiles([newFile, ...patientFiles]);
+        setSelectedFile(null);
+        setUploadProgress(0);
+        
+        // Show success message (would use toast in a full implementation)
+        alert('File uploaded successfully');
+      }
+    }, 300);
+  };
+
+  const downloadFile = (fileId) => {
+    // In a real app, this would get the file from Supabase storage
+    alert(`Downloading file ${fileId}`);
+  };
+
   return (
     <Layout>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
-          <p className="text-gray-500">View and generate emergency reports</p>
+          <h1 className="text-2xl font-bold">Reports & Documents</h1>
+          <p className="text-gray-500">Access patient files and system reports</p>
+        </div>
+        
+        <div className="mt-4 md:mt-0 flex space-x-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button size="sm">
+            <FilePlus className="h-4 w-4 mr-2" />
+            Create Report
+          </Button>
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">Report Dashboard</h2>
-        <p className="text-gray-600">
-          This page will display reports and analytics for the emergency healthcare system.
-        </p>
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
+          <Tabs 
+            defaultValue="reports" 
+            value={activeTab} 
+            onValueChange={(value) => {
+              setActiveTab(value);
+              setSearchQuery('');
+            }}
+          >
+            <CardHeader className="pb-0">
+              <div className="flex items-center justify-between">
+                <TabsList>
+                  <TabsTrigger value="reports">
+                    <FileText className="mr-2 h-4 w-4" />
+                    System Reports
+                  </TabsTrigger>
+                  <TabsTrigger value="patient-files">
+                    <File className="mr-2 h-4 w-4" />
+                    Patient Files
+                  </TabsTrigger>
+                </TabsList>
+                
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                  <Input
+                    type="text"
+                    placeholder="Search..."
+                    className="pl-9 h-9 w-[200px]"
+                    value={searchQuery}
+                    onChange={(e) => handleSearch(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="pt-6">
+              <TabsContent value="reports">
+                <div className="rounded-md border">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b bg-gray-50">
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Report ID</th>
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Title</th>
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Date</th>
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Type</th>
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Status</th>
+                          <th className="py-3 px-4 text-left font-medium text-gray-500">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {reports.map((report) => (
+                          <tr key={report.id} className="border-b">
+                            <td className="py-3 px-4 text-sm">{report.id}</td>
+                            <td className="py-3 px-4 text-sm font-medium">{report.title}</td>
+                            <td className="py-3 px-4 text-sm">{report.date}</td>
+                            <td className="py-3 px-4 text-sm">{report.type}</td>
+                            <td className="py-3 px-4 text-sm">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                report.status === 'Complete' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {report.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Button variant="ghost" size="sm" onClick={() => downloadFile(report.id)}>
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="patient-files">
+                <div className="space-y-6">
+                  <Card className="border p-4">
+                    <form onSubmit={handleFileUpload} className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      <div className="flex-grow">
+                        <Input 
+                          type="file" 
+                          id="file-upload" 
+                          onChange={handleFileChange}
+                          className="cursor-pointer"
+                        />
+                      </div>
+                      <Button type="submit" disabled={!selectedFile}>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload File
+                      </Button>
+                    </form>
+                    
+                    {uploadProgress > 0 && uploadProgress < 100 && (
+                      <div className="mt-2">
+                        <div className="h-2 bg-gray-200 rounded-full mt-1.5">
+                          <div 
+                            className="h-2 bg-medical-blue rounded-full" 
+                            style={{ width: `${uploadProgress}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Uploading: {uploadProgress}%</p>
+                      </div>
+                    )}
+                  </Card>
+
+                  <div className="rounded-md border">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b bg-gray-50">
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Name</th>
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Patient ID</th>
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Date</th>
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Type</th>
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Size</th>
+                            <th className="py-3 px-4 text-left font-medium text-gray-500">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {patientFiles.map((file) => (
+                            <tr key={file.id} className="border-b">
+                              <td className="py-3 px-4 text-sm font-medium">{file.name}</td>
+                              <td className="py-3 px-4 text-sm">{file.patientId}</td>
+                              <td className="py-3 px-4 text-sm">{file.date}</td>
+                              <td className="py-3 px-4 text-sm">{file.type}</td>
+                              <td className="py-3 px-4 text-sm">{file.size}</td>
+                              <td className="py-3 px-4">
+                                <Button variant="ghost" size="sm" onClick={() => downloadFile(file.id)}>
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </CardContent>
+          </Tabs>
+        </Card>
       </div>
     </Layout>
   );

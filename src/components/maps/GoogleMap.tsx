@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,56 @@ interface GoogleMapProps {
   apiKey?: string;
 }
 
-const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
-  const mapRef = useRef<HTMLDivElement>(null);
+const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) => {
+  const mapContainer = React.useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService | null>(null);
   const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
   const [mapApiKey, setMapApiKey] = useState<string>(apiKey || '');
   const [showKeyInput, setShowKeyInput] = useState<boolean>(!apiKey);
 
+  // Expose calculateRoute method to parent component via ref
+  useImperativeHandle(ref, () => ({
+    calculateRoute: (origin: string, destination: string) => {
+      if (!directionsService || !directionsRenderer) return;
+
+      directionsService.route({
+        origin,
+        destination,
+        travelMode: google.maps.TravelMode.DRIVING,
+        optimizeWaypoints: true,
+        provideRouteAlternatives: true,
+        drivingOptions: {
+          departureTime: new Date(),
+          trafficModel: google.maps.TrafficModel.BEST_GUESS
+        }
+      }, (response, status) => {
+        if (status === 'OK' && response) {
+          directionsRenderer.setDirections(response);
+
+          // Display route information
+          const route = response.routes[0];
+          const leg = route.legs[0];
+          
+          const distanceElement = document.getElementById('route-info-distance');
+          const timeElement = document.getElementById('route-info-time');
+          
+          if (distanceElement && leg?.distance) {
+            distanceElement.textContent = leg.distance.text || 'Unknown';
+          }
+          
+          if (timeElement && leg?.duration) {
+            timeElement.textContent = leg.duration.text || 'Unknown';
+          }
+        } else {
+          console.error(`Directions request failed: ${status}`);
+        }
+      });
+    }
+  }));
+
   useEffect(() => {
-    if (!mapRef.current || !mapApiKey) return;
+    if (!mapContainer.current || !mapApiKey) return;
 
     const initMap = async () => {
       const loader = new Loader({
@@ -30,7 +70,7 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
 
       try {
         const google = await loader.load();
-        const newMap = new google.maps.Map(mapRef.current, {
+        const newMap = new google.maps.Map(mapContainer.current, {
           center: { lat: 20.5937, lng: 78.9629 }, // Center on India
           zoom: 5,
           mapTypeControl: true,
@@ -122,7 +162,7 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
     };
 
     initMap();
-  }, [mapRef, mapApiKey]);
+  }, [mapContainer, mapApiKey]);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,40 +172,6 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
       setShowKeyInput(false);
       localStorage.setItem('google_maps_api_key', input.value);
     }
-  };
-
-  const calculateRoute = (origin: string, destination: string) => {
-    if (!directionsService || !directionsRenderer) return;
-
-    directionsService.route({
-      origin,
-      destination,
-      travelMode: google.maps.TravelMode.DRIVING,
-      optimizeWaypoints: true,
-      provideRouteAlternatives: true,
-      drivingOptions: {
-        departureTime: new Date(),
-        trafficModel: google.maps.TrafficModel.BEST_GUESS
-      }
-    }, (response, status) => {
-      if (status === 'OK' && response) {
-        directionsRenderer.setDirections(response);
-
-        // Display route information
-        const route = response.routes[0];
-        const leg = route.legs[0];
-        
-        const distanceElement = document.getElementById('route-distance');
-        const timeElement = document.getElementById('route-time');
-        
-        if (distanceElement && timeElement && leg) {
-          distanceElement.textContent = leg.distance?.text || 'Unknown';
-          timeElement.textContent = leg.duration?.text || 'Unknown';
-        }
-      } else {
-        console.error(`Directions request failed: ${status}`);
-      }
-    });
   };
 
   // Check localStorage for saved API key on component mount
@@ -185,8 +191,8 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
             <p className="text-sm text-gray-600">
               To use Google Maps, please enter your Google Maps API key. You can get one from the 
               <a href="https://console.cloud.google.com/google/maps-apis/overview" 
-                 target="_blank" rel="noopener noreferrer"
-                 className="text-medical-blue hover:underline ml-1">
+                target="_blank" rel="noopener noreferrer"
+                className="text-medical-blue hover:underline ml-1">
                 Google Cloud Console
               </a>.
             </p>
@@ -206,7 +212,7 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
       ) : null}
 
       <div 
-        ref={mapRef} 
+        ref={mapContainer} 
         className={cn(
           "w-full h-[500px] rounded-lg overflow-hidden relative",
           !mapApiKey && "bg-gray-100 flex items-center justify-center"
@@ -221,6 +227,8 @@ const GoogleMap = ({ className, apiKey }: GoogleMapProps) => {
       </div>
     </div>
   );
-};
+});
+
+GoogleMap.displayName = "GoogleMap";
 
 export default GoogleMap;

@@ -30,7 +30,10 @@ const RoutePlanning = () => {
         <div className="lg:col-span-2">
           <Card className="overflow-hidden">
             <CardContent className="p-0">
-              <GoogleMap className="w-full" />
+              <GoogleMap 
+                className="w-full" 
+                ref={mapRef}
+              />
             </CardContent>
           </Card>
           

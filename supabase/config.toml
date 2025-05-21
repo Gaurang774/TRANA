@@ -1,1 +1,21 @@
+
 project_id = "hxbwjqkpflstnjdzavzz"
+
+[api]
+# Use port 54321 (default)
+port = 54321
+# Postgres connection string
+# e.g. postgres://postgres:postgres@localhost:5432/postgres
+# Can be overridden by setting PG_CONNECTION_STRING environment variable
+postgres = ""
+# Extra schemas to expose; must have grants
+schemas = ["public", "storage", "graphql_public"]
+# Extra custom schemas to expose
+extra_schemas = ["public", "storage"]
+# Enable GraphQL
+graphql = true
+# Enable RPC
+realtime = true
+
+[functions.savePatientFile]
+verify_jwt = true
