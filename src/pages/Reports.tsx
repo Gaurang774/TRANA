@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -174,9 +175,9 @@ const Reports = () => {
 
   const sortedPatientFiles = [...patientFiles].sort((a, b) => {
     if (sortBy === 'date') {
-      return sortOrder === 'asc' 
-        ? new Date(a.date) - new Date(b.date) 
-        : new Date(b.date) - new Date(a.date);
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     } else if (sortBy === 'name') {
       return sortOrder === 'asc' 
         ? a.name.localeCompare(b.name) 
@@ -200,9 +201,9 @@ const Reports = () => {
 
   const sortedReports = [...reports].sort((a, b) => {
     if (sortBy === 'date') {
-      return sortOrder === 'asc' 
-        ? new Date(a.date) - new Date(b.date) 
-        : new Date(b.date) - new Date(a.date);
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     } else if (sortBy === 'title') {
       return sortOrder === 'asc' 
         ? a.title.localeCompare(b.title) 
