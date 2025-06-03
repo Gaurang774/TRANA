@@ -158,6 +158,63 @@ export type Database = {
           },
         ]
       }
+      medicines: {
+        Row: {
+          active_ingredients: string | null
+          brand_names: string[] | null
+          created_at: string | null
+          description: string | null
+          dosage: string | null
+          drug_class: string | null
+          generic_name: string | null
+          id: string
+          interactions: string | null
+          manufacturer: string | null
+          name: string
+          prescription_required: boolean | null
+          side_effects: string | null
+          updated_at: string | null
+          uses: string | null
+          warnings: string | null
+        }
+        Insert: {
+          active_ingredients?: string | null
+          brand_names?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          dosage?: string | null
+          drug_class?: string | null
+          generic_name?: string | null
+          id?: string
+          interactions?: string | null
+          manufacturer?: string | null
+          name: string
+          prescription_required?: boolean | null
+          side_effects?: string | null
+          updated_at?: string | null
+          uses?: string | null
+          warnings?: string | null
+        }
+        Update: {
+          active_ingredients?: string | null
+          brand_names?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          dosage?: string | null
+          drug_class?: string | null
+          generic_name?: string | null
+          id?: string
+          interactions?: string | null
+          manufacturer?: string | null
+          name?: string
+          prescription_required?: boolean | null
+          side_effects?: string | null
+          updated_at?: string | null
+          uses?: string | null
+          warnings?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
