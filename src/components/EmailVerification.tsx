@@ -32,15 +32,15 @@ const EmailVerification = () => {
             setMessage('The verification link is invalid or has expired. Please request a new verification email.');
           } else {
             setVerificationStatus('success');
-            setMessage('Your email has been successfully verified! You can now log in.');
+            setMessage('Your email has been successfully verified! You can now access the application.');
             toast({
               title: "Email verified successfully",
               description: "Welcome! Your account is now active.",
             });
             
-            // Redirect to login after 3 seconds
+            // Redirect to main page after 3 seconds
             setTimeout(() => {
-              navigate('/login');
+              navigate('/');
             }, 3000);
           }
         } catch (error: any) {
@@ -60,8 +60,8 @@ const EmailVerification = () => {
     navigate('/register');
   };
 
-  const goToLogin = () => {
-    navigate('/login');
+  const goToApp = () => {
+    navigate('/');
   };
 
   return (
@@ -99,13 +99,13 @@ const EmailVerification = () => {
                 </AlertDescription>
               </Alert>
               <p className="text-sm text-gray-600 mb-4">
-                Redirecting to login page in a few seconds...
+                Redirecting to the application in a few seconds...
               </p>
               <Button
-                onClick={goToLogin}
+                onClick={goToApp}
                 className="w-full bg-medical-blue hover:bg-medical-blue/90"
               >
-                Continue to Login
+                Continue to Application
               </Button>
             </div>
           )}
@@ -117,22 +117,13 @@ const EmailVerification = () => {
                 <XCircle className="h-4 w-4" />
                 <AlertDescription>{message}</AlertDescription>
               </Alert>
-              <div className="space-y-2">
-                <Button
-                  onClick={goToRegister}
-                  className="w-full bg-medical-blue hover:bg-medical-blue/90"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Get New Verification Email
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={goToLogin}
-                  className="w-full"
-                >
-                  Back to Login
-                </Button>
-              </div>
+              <Button
+                onClick={goToRegister}
+                className="w-full bg-medical-blue hover:bg-medical-blue/90"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Get New Verification Email
+              </Button>
             </div>
           )}
 
@@ -145,21 +136,12 @@ const EmailVerification = () => {
                   {message}
                 </AlertDescription>
               </Alert>
-              <div className="space-y-2">
-                <Button
-                  onClick={goToRegister}
-                  className="w-full bg-medical-blue hover:bg-medical-blue/90"
-                >
-                  Back to Registration
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={goToLogin}
-                  className="w-full"
-                >
-                  Already verified? Sign In
-                </Button>
-              </div>
+              <Button
+                onClick={goToRegister}
+                className="w-full bg-medical-blue hover:bg-medical-blue/90"
+              >
+                Back to Registration
+              </Button>
             </div>
           )}
         </CardContent>

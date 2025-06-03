@@ -10,7 +10,6 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Emergency from "./pages/Emergency";
 import Settings from "./pages/Settings";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Medicines from "./pages/Medicines";
 import NotFound from "./pages/NotFound";
@@ -48,7 +47,6 @@ const App = () => (
           <BrowserRouter>
             <RedirectHandler />
             <Routes>
-              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/verify-email" element={<EmailVerification />} />
               <Route path="/" element={
