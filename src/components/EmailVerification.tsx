@@ -29,7 +29,7 @@ const EmailVerification = () => {
 
           if (error) {
             setVerificationStatus('error');
-            setMessage(error.message);
+            setMessage('The verification link is invalid or has expired. Please request a new verification email.');
           } else {
             setVerificationStatus('success');
             setMessage('Your email has been successfully verified! You can now log in.');
@@ -56,13 +56,12 @@ const EmailVerification = () => {
     handleEmailVerification();
   }, [searchParams, navigate, toast]);
 
-  const resendVerification = async () => {
-    // This would need the user's email, which we don't have in this context
-    toast({
-      title: "Resend verification",
-      description: "Please go back to the registration page to resend verification email.",
-    });
+  const goToRegister = () => {
     navigate('/register');
+  };
+
+  const goToLogin = () => {
+    navigate('/login');
   };
 
   return (
@@ -79,7 +78,7 @@ const EmailVerification = () => {
           </div>
           <CardTitle className="text-2xl text-center">Email Verification</CardTitle>
           <CardDescription className="text-center">
-            Verifying your email address
+            Verify your email address to activate your account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -93,15 +92,21 @@ const EmailVerification = () => {
           {verificationStatus === 'success' && (
             <div className="text-center">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <Alert className="mb-4">
-                <CheckCircle className="h-4 w-4" />
+              <Alert className="mb-4 border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700">
                   {message}
                 </AlertDescription>
               </Alert>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 mb-4">
                 Redirecting to login page in a few seconds...
               </p>
+              <Button
+                onClick={goToLogin}
+                className="w-full bg-medical-blue hover:bg-medical-blue/90"
+              >
+                Continue to Login
+              </Button>
             </div>
           )}
 
@@ -114,18 +119,18 @@ const EmailVerification = () => {
               </Alert>
               <div className="space-y-2">
                 <Button
-                  onClick={resendVerification}
+                  onClick={goToRegister}
                   className="w-full bg-medical-blue hover:bg-medical-blue/90"
                 >
                   <Mail className="h-4 w-4 mr-2" />
-                  Resend Verification Email
+                  Get New Verification Email
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => navigate('/login')}
+                  onClick={goToLogin}
                   className="w-full"
                 >
-                  Go to Login
+                  Back to Login
                 </Button>
               </div>
             </div>
@@ -134,25 +139,25 @@ const EmailVerification = () => {
           {verificationStatus === 'pending' && (
             <div className="text-center">
               <Mail className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-              <Alert className="mb-4">
-                <Mail className="h-4 w-4" />
+              <Alert className="mb-4 border-blue-200 bg-blue-50">
+                <Mail className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-blue-700">
                   {message}
                 </AlertDescription>
               </Alert>
               <div className="space-y-2">
                 <Button
-                  onClick={resendVerification}
+                  onClick={goToRegister}
                   className="w-full bg-medical-blue hover:bg-medical-blue/90"
                 >
-                  Resend Verification Email
+                  Back to Registration
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => navigate('/register')}
+                  onClick={goToLogin}
                   className="w-full"
                 >
-                  Back to Registration
+                  Already verified? Sign In
                 </Button>
               </div>
             </div>
