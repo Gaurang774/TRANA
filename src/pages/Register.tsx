@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,15 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { User, Key, UserIcon, AlertTriangle, Stethoscope, ShieldCheck } from 'lucide-react';
+import { User, Key, UserIcon, AlertTriangle, Stethoscope, ShieldCheck, Mail, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signUp } = useAuth();
+  const { signUp, resendConfirmation } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmailSent, setShowEmailSent] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
   // Form states for different user types
   const [doctorData, setDoctorData] = useState({
@@ -54,6 +55,12 @@ const Register = () => {
       return;
     }
 
+    if (doctorData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await signUp(
       doctorData.email, 
       doctorData.password, 
@@ -65,13 +72,18 @@ const Register = () => {
     setIsLoading(false);
     
     if (error) {
-      setError(error.message);
+      if (error.message.includes('already registered')) {
+        setError('An account with this email already exists. Please try logging in instead.');
+      } else {
+        setError(error.message);
+      }
     } else {
+      setUserEmail(doctorData.email);
+      setShowEmailSent(true);
       toast({
         title: "Registration successful",
-        description: "Please check your email to confirm your account.",
+        description: "Please check your email to verify your account.",
       });
-      navigate('/login');
     }
   };
 
@@ -82,6 +94,12 @@ const Register = () => {
 
     if (!patientData.email || !patientData.password || !patientData.firstName || !patientData.lastName) {
       setError('Please fill in all required fields');
+      setIsLoading(false);
+      return;
+    }
+
+    if (patientData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       setIsLoading(false);
       return;
     }
@@ -97,13 +115,18 @@ const Register = () => {
     setIsLoading(false);
     
     if (error) {
-      setError(error.message);
+      if (error.message.includes('already registered')) {
+        setError('An account with this email already exists. Please try logging in instead.');
+      } else {
+        setError(error.message);
+      }
     } else {
+      setUserEmail(patientData.email);
+      setShowEmailSent(true);
       toast({
         title: "Registration successful",
-        description: "Please check your email to confirm your account.",
+        description: "Please check your email to verify your account.",
       });
-      navigate('/login');
     }
   };
 
@@ -114,6 +137,12 @@ const Register = () => {
 
     if (!adminData.email || !adminData.password || !adminData.firstName || !adminData.lastName) {
       setError('Please fill in all required fields');
+      setIsLoading(false);
+      return;
+    }
+
+    if (adminData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       setIsLoading(false);
       return;
     }
@@ -129,15 +158,96 @@ const Register = () => {
     setIsLoading(false);
     
     if (error) {
-      setError(error.message);
+      if (error.message.includes('already registered')) {
+        setError('An account with this email already exists. Please try logging in instead.');
+      } else {
+        setError(error.message);
+      }
     } else {
+      setUserEmail(adminData.email);
+      setShowEmailSent(true);
       toast({
         title: "Registration successful",
-        description: "Please check your email to confirm your account.",
+        description: "Please check your email to verify your account.",
       });
-      navigate('/login');
     }
   };
+
+  const handleResendConfirmation = async () => {
+    setIsLoading(true);
+    const { error } = await resendConfirmation(userEmail);
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Email sent",
+        description: "A new confirmation email has been sent to your inbox.",
+      });
+    }
+  };
+
+  if (showEmailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-6">
+              <div className="h-12 w-12 bg-medical-blue rounded-md flex items-center justify-center">
+                <span className="text-white font-bold text-lg">ER</span>
+              </div>
+              <h1 className="text-2xl font-bold ml-3 text-medical-blue">
+                MediEmergency
+              </h1>
+            </div>
+            <CardTitle className="text-2xl text-center">Check Your Email</CardTitle>
+            <CardDescription className="text-center">
+              We've sent a verification link to your email address
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <Alert className="mb-4">
+                <Mail className="h-4 w-4" />
+                <AlertDescription>
+                  A verification email has been sent to <strong>{userEmail}</strong>. 
+                  Please check your inbox and click the verification link to activate your account.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-3">
+                <p className="text-sm text-gray-600">
+                  Didn't receive the email? Check your spam folder or click below to resend.
+                </p>
+                
+                <Button
+                  onClick={handleResendConfirmation}
+                  disabled={isLoading}
+                  className="w-full bg-medical-blue hover:bg-medical-blue/90"
+                >
+                  {isLoading ? "Sending..." : "Resend Verification Email"}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/login')}
+                  className="w-full"
+                >
+                  Already verified? Sign In
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -233,6 +343,7 @@ const Register = () => {
                         minLength={6}
                       />
                     </div>
+                    <p className="text-xs text-gray-500">Password must be at least 6 characters long</p>
                   </div>
                 </div>
                 <Button
@@ -305,6 +416,7 @@ const Register = () => {
                         minLength={6}
                       />
                     </div>
+                    <p className="text-xs text-gray-500">Password must be at least 6 characters long</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="doctor-department">Department (Optional)</Label>
@@ -395,6 +507,7 @@ const Register = () => {
                         minLength={6}
                       />
                     </div>
+                    <p className="text-xs text-gray-500">Password must be at least 6 characters long</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="admin-department">Department (Optional)</Label>

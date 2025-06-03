@@ -7,15 +7,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { User, Key, AlertTriangle } from 'lucide-react';
+import { User, Key, AlertTriangle, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, user } = useAuth();
+  const { signIn, user, resendConfirmation } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
 
   // Form states
   const [email, setEmail] = useState('');
@@ -32,6 +33,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setShowResendConfirmation(false);
     
     if (!email || !password) {
       setError('Please enter both email and password');
@@ -44,13 +46,43 @@ const Login = () => {
     setIsLoading(false);
     
     if (error) {
-      setError(error.message);
+      console.log('Login error:', error);
+      
+      if (error.message.includes('Email not confirmed')) {
+        setError('Please verify your email address before signing in.');
+        setShowResendConfirmation(true);
+      } else if (error.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else {
+        setError(error.message);
+      }
     } else {
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
       navigate('/');
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await resendConfirmation(email);
+    setIsLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      toast({
+        title: "Confirmation email sent",
+        description: "Please check your inbox and verify your email address.",
+      });
+      setShowResendConfirmation(false);
     }
   };
 
@@ -80,6 +112,24 @@ const Login = () => {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+              
+              {showResendConfirmation && (
+                <Alert>
+                  <Mail className="h-4 w-4" />
+                  <AlertDescription>
+                    Need to verify your email?{' '}
+                    <button
+                      type="button"
+                      onClick={handleResendConfirmation}
+                      className="underline text-medical-blue hover:text-medical-blue/90"
+                      disabled={isLoading}
+                    >
+                      Click here to resend confirmation email
+                    </button>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">

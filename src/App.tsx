@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import BedManagement from "./pages/BedManagement";
 import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
+import EmailVerification from "./components/EmailVerification";
 import { useEffect } from "react";
 
 // Create a component to handle redirects from wrong urls
@@ -49,6 +50,7 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify-email" element={<EmailVerification />} />
               <Route path="/" element={
                 <ProtectedRoute>
                   <Index />
