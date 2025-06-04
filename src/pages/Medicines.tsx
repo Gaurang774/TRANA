@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Pill, AlertTriangle, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
@@ -26,8 +23,6 @@ interface Medicine {
 }
 
 const Medicines = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [filteredMedicines, setFilteredMedicines] = useState<Medicine[]>([]);
@@ -35,12 +30,8 @@ const Medicines = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
     fetchMedicines();
-  }, [user, navigate]);
+  }, []);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -133,8 +124,6 @@ const Medicines = () => {
       </div>
     </div>
   );
-
-  if (!user) return null;
 
   return (
     <Layout>
