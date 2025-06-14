@@ -9,47 +9,122 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ambulance_assignments: {
+        Row: {
+          ambulance_id: string | null
+          created_at: string | null
+          id: string
+          role: string
+          shift_end: string | null
+          shift_start: string
+          staff_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ambulance_id?: string | null
+          created_at?: string | null
+          id?: string
+          role: string
+          shift_end?: string | null
+          shift_start: string
+          staff_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ambulance_id?: string | null
+          created_at?: string | null
+          id?: string
+          role?: string
+          shift_end?: string | null
+          shift_start?: string
+          staff_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambulance_assignments_ambulance_id_fkey"
+            columns: ["ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ambulance_assignments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ambulances: {
         Row: {
           ambulance_number: string
           assigned_emergency_id: string | null
+          base_station: string | null
           created_at: string
           crew_members: Json | null
+          crew_size: number | null
           current_location: Json | null
+          driver_id: string | null
           equipment_status: Json | null
           fuel_level: number | null
           id: string
+          is_deleted: boolean | null
           last_maintenance: string | null
+          license_plate: string | null
           mileage: number | null
+          next_maintenance_date: string | null
+          paramedic_id: string | null
           status: string
+          type: string | null
           updated_at: string
         }
         Insert: {
           ambulance_number: string
           assigned_emergency_id?: string | null
+          base_station?: string | null
           created_at?: string
           crew_members?: Json | null
+          crew_size?: number | null
           current_location?: Json | null
+          driver_id?: string | null
           equipment_status?: Json | null
           fuel_level?: number | null
           id?: string
+          is_deleted?: boolean | null
           last_maintenance?: string | null
+          license_plate?: string | null
           mileage?: number | null
+          next_maintenance_date?: string | null
+          paramedic_id?: string | null
           status: string
+          type?: string | null
           updated_at?: string
         }
         Update: {
           ambulance_number?: string
           assigned_emergency_id?: string | null
+          base_station?: string | null
           created_at?: string
           crew_members?: Json | null
+          crew_size?: number | null
           current_location?: Json | null
+          driver_id?: string | null
           equipment_status?: Json | null
           fuel_level?: number | null
           id?: string
+          is_deleted?: boolean | null
           last_maintenance?: string | null
+          license_plate?: string | null
           mileage?: number | null
+          next_maintenance_date?: string | null
+          paramedic_id?: string | null
           status?: string
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -65,44 +140,77 @@ export type Database = {
       appointments: {
         Row: {
           appointment_date: string
+          appointment_number: string | null
           appointment_time: string
           created_at: string
           department: string
+          department_id: string | null
+          diagnosis: string | null
           doctor_id: string | null
+          duration_minutes: number | null
+          fees: number | null
+          hospital_id: string | null
           id: string
+          is_deleted: boolean | null
           notes: string | null
           patient_email: string | null
           patient_name: string
           patient_phone: string | null
+          payment_status: string | null
+          prescription: string | null
           status: string
+          symptoms: string | null
+          type: string | null
           updated_at: string
         }
         Insert: {
           appointment_date: string
+          appointment_number?: string | null
           appointment_time: string
           created_at?: string
           department: string
+          department_id?: string | null
+          diagnosis?: string | null
           doctor_id?: string | null
+          duration_minutes?: number | null
+          fees?: number | null
+          hospital_id?: string | null
           id?: string
+          is_deleted?: boolean | null
           notes?: string | null
           patient_email?: string | null
           patient_name: string
           patient_phone?: string | null
+          payment_status?: string | null
+          prescription?: string | null
           status?: string
+          symptoms?: string | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
           appointment_date?: string
+          appointment_number?: string | null
           appointment_time?: string
           created_at?: string
           department?: string
+          department_id?: string | null
+          diagnosis?: string | null
           doctor_id?: string | null
+          duration_minutes?: number | null
+          fees?: number | null
+          hospital_id?: string | null
           id?: string
+          is_deleted?: boolean | null
           notes?: string | null
           patient_email?: string | null
           patient_name?: string
           patient_phone?: string | null
+          payment_status?: string | null
+          prescription?: string | null
           status?: string
+          symptoms?: string | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -115,19 +223,76 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          head_doctor_id: string | null
+          hospital_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          head_doctor_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          head_doctor_id?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_head_doctor_id_fkey"
+            columns: ["head_doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emergencies: {
         Row: {
+          actual_arrival: string | null
+          assigned_ambulance_id: string | null
+          assigned_hospital_id: string | null
           assigned_to: string | null
           caller_name: string | null
           caller_phone: string | null
           coordinates: Json | null
           created_at: string
           description: string | null
+          dispatcher_id: string | null
           emergency_number: string | null
+          estimated_arrival: string | null
           eta_minutes: number | null
           id: string
+          is_deleted: boolean | null
           location: string
           notes: string | null
+          patient_age: number | null
+          patient_gender: string | null
+          patient_name: string | null
           priority: string
           reported_by: string | null
           responding_unit: string | null
@@ -136,17 +301,26 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          actual_arrival?: string | null
+          assigned_ambulance_id?: string | null
+          assigned_hospital_id?: string | null
           assigned_to?: string | null
           caller_name?: string | null
           caller_phone?: string | null
           coordinates?: Json | null
           created_at?: string
           description?: string | null
+          dispatcher_id?: string | null
           emergency_number?: string | null
+          estimated_arrival?: string | null
           eta_minutes?: number | null
           id?: string
+          is_deleted?: boolean | null
           location: string
           notes?: string | null
+          patient_age?: number | null
+          patient_gender?: string | null
+          patient_name?: string | null
           priority: string
           reported_by?: string | null
           responding_unit?: string | null
@@ -155,17 +329,26 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          actual_arrival?: string | null
+          assigned_ambulance_id?: string | null
+          assigned_hospital_id?: string | null
           assigned_to?: string | null
           caller_name?: string | null
           caller_phone?: string | null
           coordinates?: Json | null
           created_at?: string
           description?: string | null
+          dispatcher_id?: string | null
           emergency_number?: string | null
+          estimated_arrival?: string | null
           eta_minutes?: number | null
           id?: string
+          is_deleted?: boolean | null
           location?: string
           notes?: string | null
+          patient_age?: number | null
+          patient_gender?: string | null
+          patient_name?: string | null
           priority?: string
           reported_by?: string | null
           responding_unit?: string | null
@@ -235,10 +418,15 @@ export type Database = {
           bed_number: string
           bed_type: string | null
           created_at: string
+          daily_rate: number | null
           department: string
+          department_id: string | null
           equipment: Json | null
           estimated_discharge: string | null
+          floor_number: number | null
+          hospital_id: string | null
           id: string
+          is_deleted: boolean | null
           notes: string | null
           patient_id: string | null
           patient_name: string | null
@@ -253,10 +441,15 @@ export type Database = {
           bed_number: string
           bed_type?: string | null
           created_at?: string
+          daily_rate?: number | null
           department: string
+          department_id?: string | null
           equipment?: Json | null
           estimated_discharge?: string | null
+          floor_number?: number | null
+          hospital_id?: string | null
           id?: string
+          is_deleted?: boolean | null
           notes?: string | null
           patient_id?: string | null
           patient_name?: string | null
@@ -271,10 +464,15 @@ export type Database = {
           bed_number?: string
           bed_type?: string | null
           created_at?: string
+          daily_rate?: number | null
           department?: string
+          department_id?: string | null
           equipment?: Json | null
           estimated_discharge?: string | null
+          floor_number?: number | null
+          hospital_id?: string | null
           id?: string
+          is_deleted?: boolean | null
           notes?: string | null
           patient_id?: string | null
           patient_name?: string | null
@@ -292,6 +490,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "hospital_beds_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hospital_beds_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "hospital_beds_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
@@ -299,6 +511,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hospitals: {
+        Row: {
+          address: string
+          available_beds: number | null
+          coordinates: Json | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          total_beds: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          available_beds?: number | null
+          coordinates?: Json | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          total_beds?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          available_beds?: number | null
+          coordinates?: Json | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          total_beds?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       medical_inventory: {
         Row: {
@@ -360,6 +614,91 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_records: {
+        Row: {
+          allergies: string[] | null
+          attachments: string[] | null
+          created_at: string | null
+          diagnosis: string | null
+          doctor_id: string | null
+          follow_up_date: string | null
+          hospital_id: string | null
+          id: string
+          is_deleted: boolean | null
+          lab_results: Json | null
+          medications: string | null
+          notes: string | null
+          patient_id: string | null
+          record_type: string | null
+          treatment: string | null
+          updated_at: string | null
+          visit_date: string | null
+          vitals: Json | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          attachments?: string[] | null
+          created_at?: string | null
+          diagnosis?: string | null
+          doctor_id?: string | null
+          follow_up_date?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          lab_results?: Json | null
+          medications?: string | null
+          notes?: string | null
+          patient_id?: string | null
+          record_type?: string | null
+          treatment?: string | null
+          updated_at?: string | null
+          visit_date?: string | null
+          vitals?: Json | null
+        }
+        Update: {
+          allergies?: string[] | null
+          attachments?: string[] | null
+          created_at?: string | null
+          diagnosis?: string | null
+          doctor_id?: string | null
+          follow_up_date?: string | null
+          hospital_id?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          lab_results?: Json | null
+          medications?: string | null
+          notes?: string | null
+          patient_id?: string | null
+          record_type?: string | null
+          treatment?: string | null
+          updated_at?: string | null
+          visit_date?: string | null
+          vitals?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_doctor_id_fkey"
+            columns: ["doctor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medicines: {
         Row: {
           active_ingredients: string | null
@@ -416,6 +755,47 @@ export type Database = {
           warnings?: string | null
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -610,7 +990,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      assign_ambulance: {
+        Args: {
+          p_emergency_id: string
+          p_ambulance_id: string
+          p_dispatcher_id: string
+        }
+        Returns: boolean
+      }
+      book_appointment: {
+        Args: {
+          p_patient_id: string
+          p_doctor_id: string
+          p_hospital_id: string
+          p_department_id: string
+          p_appointment_date: string
+          p_appointment_time: string
+          p_symptoms?: string
+        }
+        Returns: string
+      }
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      update_ambulance_location: {
+        Args: {
+          p_ambulance_id: string
+          p_latitude: number
+          p_longitude: number
+          p_address?: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
