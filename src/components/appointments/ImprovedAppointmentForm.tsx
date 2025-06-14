@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +17,7 @@ import {
   validateBusinessHours 
 } from './AppointmentFormValidation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import OCRPrescriptionUpload from './OCRPrescriptionUpload';
 
 interface ImprovedAppointmentFormProps {
   onClose: () => void;
@@ -33,6 +33,7 @@ const ImprovedAppointmentForm = ({ onClose }: ImprovedAppointmentFormProps) => {
     control, 
     watch, 
     reset, 
+    setValue,
     formState: { errors, isSubmitting },
     setError
   } = useForm<AppointmentFormData>({
@@ -51,6 +52,29 @@ const ImprovedAppointmentForm = ({ onClose }: ImprovedAppointmentFormProps) => {
 
   const watchDate = watch('appointment_date');
   const watchTime = watch('appointment_time');
+
+  // Handle OCR extracted data
+  const handleOCRDataExtracted = (extractedData: {
+    patient_name: string;
+    patient_phone: string;
+    patient_email: string;
+    notes: string;
+  }) => {
+    if (extractedData.patient_name) {
+      setValue('patient_name', extractedData.patient_name);
+    }
+    if (extractedData.patient_phone) {
+      setValue('patient_phone', extractedData.patient_phone);
+    }
+    if (extractedData.patient_email) {
+      setValue('patient_email', extractedData.patient_email);
+    }
+    if (extractedData.notes) {
+      const currentNotes = watch('notes') || '';
+      const newNotes = currentNotes ? `${currentNotes}\n\n${extractedData.notes}` : extractedData.notes;
+      setValue('notes', newNotes);
+    }
+  };
 
   // Fetch doctors with error handling
   const { data: doctors, isLoading: doctorsLoading, error: doctorsError } = useQuery({
@@ -168,182 +192,188 @@ const ImprovedAppointmentForm = ({ onClose }: ImprovedAppointmentFormProps) => {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>New Appointment</CardTitle>
-            <CardDescription>Schedule a new patient appointment</CardDescription>
-          </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {doctorsError && (
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Failed to load doctors. Please refresh the page.
-            </AlertDescription>
-          </Alert>
-        )}
+    <div className="space-y-6">
+      {/* OCR Upload Component */}
+      <OCRPrescriptionUpload onDataExtracted={handleOCRDataExtracted} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Label htmlFor="patient_name">Patient Name *</Label>
-            <Input
-              id="patient_name"
-              {...register('patient_name')}
-              placeholder="Enter patient full name"
-              className={errors.patient_name ? 'border-red-500' : ''}
-            />
-            {errors.patient_name && (
-              <p className="text-sm text-red-500 mt-1">{errors.patient_name.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Existing Appointment Form */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
             <div>
-              <Label htmlFor="patient_phone">Phone Number</Label>
-              <Input
-                id="patient_phone"
-                {...register('patient_phone')}
-                placeholder="+1234567890"
-                className={errors.patient_phone ? 'border-red-500' : ''}
-              />
-              {errors.patient_phone && (
-                <p className="text-sm text-red-500 mt-1">{errors.patient_phone.message}</p>
-              )}
+              <CardTitle>New Appointment</CardTitle>
+              <CardDescription>Schedule a new patient appointment</CardDescription>
             </div>
-
-            <div>
-              <Label htmlFor="patient_email">Email</Label>
-              <Input
-                id="patient_email"
-                type="email"
-                {...register('patient_email')}
-                placeholder="patient@example.com"
-                className={errors.patient_email ? 'border-red-500' : ''}
-              />
-              {errors.patient_email && (
-                <p className="text-sm text-red-500 mt-1">{errors.patient_email.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="department">Department *</Label>
-            <Controller
-              name="department"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className={errors.department ? 'border-red-500' : ''}>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            {errors.department && (
-              <p className="text-sm text-red-500 mt-1">{errors.department.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="doctor_id">Doctor (Optional)</Label>
-            <Controller
-              name="doctor_id"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value} disabled={doctorsLoading}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={doctorsLoading ? "Loading doctors..." : "Select doctor"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {doctors?.map((doctor) => (
-                      <SelectItem key={doctor.id} value={doctor.id}>
-                        Dr. {doctor.first_name} {doctor.last_name}
-                        {doctor.specialty && ` - ${doctor.specialty}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="appointment_date">Date *</Label>
-              <Input
-                id="appointment_date"
-                type="date"
-                {...register('appointment_date')}
-                min={new Date().toISOString().split('T')[0]}
-                className={errors.appointment_date ? 'border-red-500' : ''}
-              />
-              {errors.appointment_date && (
-                <p className="text-sm text-red-500 mt-1">{errors.appointment_date.message}</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="appointment_time">Time *</Label>
-              <Input
-                id="appointment_time"
-                type="time"
-                {...register('appointment_time')}
-                min="08:00"
-                max="18:00"
-                step="900" // 15-minute intervals
-                className={errors.appointment_time ? 'border-red-500' : ''}
-              />
-              {errors.appointment_time && (
-                <p className="text-sm text-red-500 mt-1">{errors.appointment_time.message}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">
-                Business hours: 8:00 AM - 6:00 PM
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Notes</Label>
-            <Input
-              id="notes"
-              {...register('notes')}
-              placeholder="Additional notes (optional)"
-              maxLength={500}
-            />
-            {errors.notes && (
-              <p className="text-sm text-red-500 mt-1">{errors.notes.message}</p>
-            )}
-          </div>
-
-          <div className="flex gap-2 pt-4">
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Appointment'}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="h-4 w-4" />
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          {doctorsError && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to load doctors. Please refresh the page.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Label htmlFor="patient_name">Patient Name *</Label>
+              <Input
+                id="patient_name"
+                {...register('patient_name')}
+                placeholder="Enter patient full name"
+                className={errors.patient_name ? 'border-red-500' : ''}
+              />
+              {errors.patient_name && (
+                <p className="text-sm text-red-500 mt-1">{errors.patient_name.message}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="patient_phone">Phone Number</Label>
+                <Input
+                  id="patient_phone"
+                  {...register('patient_phone')}
+                  placeholder="+1234567890"
+                  className={errors.patient_phone ? 'border-red-500' : ''}
+                />
+                {errors.patient_phone && (
+                  <p className="text-sm text-red-500 mt-1">{errors.patient_phone.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="patient_email">Email</Label>
+                <Input
+                  id="patient_email"
+                  type="email"
+                  {...register('patient_email')}
+                  placeholder="patient@example.com"
+                  className={errors.patient_email ? 'border-red-500' : ''}
+                />
+                {errors.patient_email && (
+                  <p className="text-sm text-red-500 mt-1">{errors.patient_email.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="department">Department *</Label>
+              <Controller
+                name="department"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className={errors.department ? 'border-red-500' : ''}>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept} value={dept}>
+                          {dept}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.department && (
+                <p className="text-sm text-red-500 mt-1">{errors.department.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="doctor_id">Doctor (Optional)</Label>
+              <Controller
+                name="doctor_id"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value} disabled={doctorsLoading}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={doctorsLoading ? "Loading doctors..." : "Select doctor"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {doctors?.map((doctor) => (
+                        <SelectItem key={doctor.id} value={doctor.id}>
+                          Dr. {doctor.first_name} {doctor.last_name}
+                          {doctor.specialty && ` - ${doctor.specialty}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="appointment_date">Date *</Label>
+                <Input
+                  id="appointment_date"
+                  type="date"
+                  {...register('appointment_date')}
+                  min={new Date().toISOString().split('T')[0]}
+                  className={errors.appointment_date ? 'border-red-500' : ''}
+                />
+                {errors.appointment_date && (
+                  <p className="text-sm text-red-500 mt-1">{errors.appointment_date.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="appointment_time">Time *</Label>
+                <Input
+                  id="appointment_time"
+                  type="time"
+                  {...register('appointment_time')}
+                  min="08:00"
+                  max="18:00"
+                  step="900" // 15-minute intervals
+                  className={errors.appointment_time ? 'border-red-500' : ''}
+                />
+                {errors.appointment_time && (
+                  <p className="text-sm text-red-500 mt-1">{errors.appointment_time.message}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Business hours: 8:00 AM - 6:00 PM
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Input
+                id="notes"
+                {...register('notes')}
+                placeholder="Additional notes (optional)"
+                maxLength={500}
+              />
+              {errors.notes && (
+                <p className="text-sm text-red-500 mt-1">{errors.notes.message}</p>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                {isSubmitting ? 'Creating...' : 'Create Appointment'}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
