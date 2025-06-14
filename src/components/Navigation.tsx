@@ -1,13 +1,45 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        console.log('Fetching profile for user:', user.id);
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          setUserName(user.email || '');
+        } else if (profile) {
+          console.log('Profile data:', profile);
+          const fullName = [profile.first_name, profile.last_name]
+            .filter(Boolean)
+            .join(' ');
+          setUserName(fullName || user.email || '');
+        } else {
+          setUserName(user.email || '');
+        }
+      } else {
+        setUserName('');
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -27,7 +59,7 @@ export const Navigation: React.FC = () => {
             {user ? (
               <>
                 <span className="text-sm text-gray-600">
-                  Welcome, {user.email}
+                  Hello, {userName}
                 </span>
                 <Button
                   variant="outline"
