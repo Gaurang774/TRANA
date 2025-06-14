@@ -23,7 +23,7 @@ const statusColors = {
   'dispatched': 'text-medical-blue',
   'en-route': 'text-medical-blue',
   'at-scene': 'text-medical-red',
-  'returning': 'text-medical-yellow',
+  'returning': 'text-medical-orange',
 };
 
 const statusBgColors = {
@@ -31,7 +31,7 @@ const statusBgColors = {
   'dispatched': 'bg-medical-blue/10',
   'en-route': 'bg-medical-blue/10',
   'at-scene': 'bg-medical-red/10',
-  'returning': 'bg-medical-yellow/10',
+  'returning': 'bg-medical-orange/10',
 };
 
 const statusLabels = {
@@ -96,13 +96,13 @@ const AmbulanceStatus = () => {
                 <Battery className={cn(
                   "h-4 w-4 mr-1",
                   ambulance.batteryLevel > 70 ? 'text-medical-green' :
-                  ambulance.batteryLevel > 40 ? 'text-medical-yellow' : 
+                  ambulance.batteryLevel > 40 ? 'text-medical-orange' : 
                   'text-medical-red'
                 )} />
                 <span className={cn(
                   "text-xs font-medium",
                   ambulance.batteryLevel > 70 ? 'text-medical-green' :
-                  ambulance.batteryLevel > 40 ? 'text-medical-yellow' : 
+                  ambulance.batteryLevel > 40 ? 'text-medical-orange' : 
                   'text-medical-red'
                 )}>
                   {ambulance.batteryLevel}%

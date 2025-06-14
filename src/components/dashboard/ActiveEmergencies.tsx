@@ -46,13 +46,13 @@ const emergencies: Emergency[] = [
 
 const statusColors = {
   critical: 'text-medical-red',
-  serious: 'text-medical-yellow',
+  serious: 'text-medical-orange',
   stable: 'text-medical-green'
 };
 
 const statusBgColors = {
   critical: 'bg-medical-red/10',
-  serious: 'bg-medical-yellow/10',
+  serious: 'bg-medical-orange/10',
   stable: 'bg-medical-green/10'
 };
 

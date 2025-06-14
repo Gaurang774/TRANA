@@ -68,7 +68,6 @@ export default {
 					lightblue: '#3b82f6',
 					green: '#059669',
 					red: '#dc2626',
-					yellow: '#d97706',
 					orange: '#ea580c',
 					purple: '#7c3aed',
 					cyan: '#0891b2',

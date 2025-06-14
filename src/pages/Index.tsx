@@ -47,8 +47,7 @@ const Index = () => {
           title="Patients In Transit"
           value="5"
           icon={<Users className="h-5 w-5" />}
-          trend={{ value: 8, isPositive: false }}
-          color="yellow"
+          color="green"
         />
         <StatCard
           title="Available Beds"
