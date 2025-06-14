@@ -1,84 +1,97 @@
 
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 const EmergencyMap = () => {
-  // This is a mockup map for the demo
-  // In a real app, this would integrate with a mapping API like Google Maps or Mapbox
   return (
-    <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-      <div className="p-4 border-b flex justify-between items-center">
-        <div>
-          <h2 className="font-semibold text-lg">Emergency Response Map</h2>
-          <p className="text-sm text-gray-500">Live ambulance tracking & hospital locations</p>
-        </div>
-        <div className="flex space-x-2">
-          <div className="flex items-center text-xs">
-            <div className="w-2.5 h-2.5 rounded-full bg-medical-blue mr-1 animate-pulse"></div>
-            <span>Ambulance</span>
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-2xl transition-all duration-300">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-gray-700 dark:to-gray-600">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Emergency Response Map</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+              Live ambulance tracking & hospital locations
+            </p>
           </div>
-          <div className="flex items-center text-xs">
-            <div className="w-2.5 h-2.5 rounded-full bg-medical-red mr-1"></div>
-            <span>Emergency</span>
-          </div>
-          <div className="flex items-center text-xs">
-            <div className="w-2.5 h-2.5 rounded-full bg-medical-green mr-1"></div>
-            <span>Hospital</span>
+          <div className="flex flex-wrap gap-3">
+            <div className="flex items-center text-xs font-medium bg-white dark:bg-gray-700 px-3 py-1.5 rounded-full shadow-sm">
+              <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mr-2 animate-pulse"></div>
+              <span className="text-gray-700 dark:text-gray-200">Ambulance</span>
+            </div>
+            <div className="flex items-center text-xs font-medium bg-white dark:bg-gray-700 px-3 py-1.5 rounded-full shadow-sm">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500 mr-2"></div>
+              <span className="text-gray-700 dark:text-gray-200">Emergency</span>
+            </div>
+            <div className="flex items-center text-xs font-medium bg-white dark:bg-gray-700 px-3 py-1.5 rounded-full shadow-sm">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2"></div>
+              <span className="text-gray-700 dark:text-gray-200">Hospital</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="relative" style={{ height: '440px' }}>
-        {/* Map Background */}
-        <div className="absolute inset-0 bg-gray-100 p-1">
-          <div className="w-full h-full bg-gray-200 relative overflow-hidden">
-            {/* Simulated Map with Grid */}
-            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8">
-              {Array.from({ length: 64 }).map((_, i) => (
-                <div key={i} className="border border-gray-300/30"></div>
+      <div className="relative" style={{ height: '480px' }}>
+        {/* Enhanced Map Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 p-2">
+          <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 relative overflow-hidden rounded-xl border border-gray-300 dark:border-gray-600">
+            {/* Enhanced Grid */}
+            <div className="absolute inset-0 grid grid-cols-10 grid-rows-10 opacity-30">
+              {Array.from({ length: 100 }).map((_, i) => (
+                <div key={i} className="border border-gray-400/20 dark:border-gray-500/20"></div>
               ))}
             </div>
             
-            {/* Road Network */}
+            {/* Enhanced Road Network */}
             <div className="absolute inset-0">
               {/* Horizontal Roads */}
-              <div className="absolute h-1.5 bg-gray-400/40 left-0 right-0 top-1/4"></div>
-              <div className="absolute h-1.5 bg-gray-400/40 left-0 right-0 top-2/4"></div>
-              <div className="absolute h-1.5 bg-gray-400/40 left-0 right-0 top-3/4"></div>
+              <div className="absolute h-2 bg-gray-500/60 dark:bg-gray-400/60 left-0 right-0 top-1/4 rounded-full"></div>
+              <div className="absolute h-2 bg-gray-500/60 dark:bg-gray-400/60 left-0 right-0 top-2/4 rounded-full"></div>
+              <div className="absolute h-2 bg-gray-500/60 dark:bg-gray-400/60 left-0 right-0 top-3/4 rounded-full"></div>
               
               {/* Vertical Roads */}
-              <div className="absolute w-1.5 bg-gray-400/40 top-0 bottom-0 left-1/4"></div>
-              <div className="absolute w-1.5 bg-gray-400/40 top-0 bottom-0 left-2/4"></div>
-              <div className="absolute w-1.5 bg-gray-400/40 top-0 bottom-0 left-3/4"></div>
+              <div className="absolute w-2 bg-gray-500/60 dark:bg-gray-400/60 top-0 bottom-0 left-1/4 rounded-full"></div>
+              <div className="absolute w-2 bg-gray-500/60 dark:bg-gray-400/60 top-0 bottom-0 left-2/4 rounded-full"></div>
+              <div className="absolute w-2 bg-gray-500/60 dark:bg-gray-400/60 top-0 bottom-0 left-3/4 rounded-full"></div>
             </div>
             
-            {/* Hospitals */}
-            <div className="absolute w-5 h-5 bg-medical-green rounded-full top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-[10px] font-bold">H</div>
-            <div className="absolute w-5 h-5 bg-medical-green rounded-full top-3/4 left-3/4 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-[10px] font-bold">H</div>
+            {/* Enhanced Hospitals */}
+            <div className="absolute w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white">
+              H
+            </div>
+            <div className="absolute w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full top-3/4 left-3/4 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white">
+              H
+            </div>
             
-            {/* Ambulances */}
-            <div className="absolute w-4 h-4 bg-medical-blue rounded-full top-[30%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-[8px] animate-pulse-slow">A1</div>
-            <div className="absolute w-4 h-4 bg-medical-blue rounded-full top-[65%] left-[20%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-[8px] animate-pulse-slow">A2</div>
+            {/* Enhanced Ambulances */}
+            <div className="absolute w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full top-[30%] left-[45%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-xs font-bold animate-pulse shadow-lg border-2 border-white">
+              A1
+            </div>
+            <div className="absolute w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full top-[65%] left-[20%] transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-xs font-bold animate-pulse shadow-lg border-2 border-white">
+              A2
+            </div>
             
-            {/* Emergency Incident */}
+            {/* Enhanced Emergency Incident */}
             <div className="absolute top-[65%] left-[45%]">
-              <div className="w-5 h-5 bg-medical-red rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-[10px] font-bold">!</div>
-              <div className="w-12 h-12 bg-medical-red/20 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping" style={{ animationDuration: '3s' }}></div>
+              <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white">
+                !
+              </div>
+              <div className="w-16 h-16 bg-red-500/20 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping" style={{ animationDuration: '2s' }}></div>
+              <div className="w-24 h-24 bg-red-500/10 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-ping" style={{ animationDuration: '3s' }}></div>
             </div>
             
-            {/* Optimal Route */}
+            {/* Enhanced Optimal Route */}
             <svg className="absolute inset-0" style={{ zIndex: 5 }}>
               <path 
                 d="M245,130 L200,200 L250,280 L350,310" 
-                stroke="#0066CC" 
-                strokeWidth="2.5" 
-                strokeDasharray="6 3" 
+                stroke="#3B82F6" 
+                strokeWidth="3" 
+                strokeDasharray="8 4" 
                 fill="none" 
+                className="drop-shadow-sm"
               />
             </svg>
             
-            {/* Traffic Congestion */}
-            <div className="absolute w-12 h-12 bg-medical-yellow/20 rounded-full top-[50%] left-[60%] transform -translate-x-1/2 -translate-y-1/2"></div>
+            {/* Enhanced Traffic Congestion */}
+            <div className="absolute w-16 h-16 bg-amber-500/30 rounded-full top-[50%] left-[60%] transform -translate-x-1/2 -translate-y-1/2 border-2 border-amber-400/50"></div>
           </div>
         </div>
       </div>

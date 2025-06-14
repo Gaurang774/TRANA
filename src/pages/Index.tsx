@@ -55,65 +55,69 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Header Section */}
-      <div className="mb-6 lg:mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between">
-          <div className="mb-4 lg:mb-0">
-            <h1 className="text-2xl lg:text-3xl font-semibold text-neutral-900 mb-2">Emergency Dashboard</h1>
-            <p className="text-sm lg:text-base text-neutral-600">Real-time medical emergency management system</p>
+      {/* Enhanced Header Section */}
+      <div className="mb-8 lg:mb-10">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+              Emergency Dashboard
+            </h1>
+            <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 font-medium">
+              Real-time medical emergency management system
+            </p>
           </div>
           
-          <div className="bg-white border border-neutral-200 px-3 lg:px-4 py-2 rounded-lg flex items-center shadow-soft">
-            <Activity className="h-4 w-4 text-medical-green mr-2" />
-            <span className="text-xs lg:text-sm text-neutral-600 font-medium">System Active</span>
-            <div className="w-2 h-2 bg-medical-green rounded-full ml-2 animate-pulse"></div>
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-xl flex items-center shadow-lg hover:shadow-xl transition-all duration-300">
+            <Activity className="h-5 w-5 text-emerald-500 mr-3" />
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">System Active</span>
+            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full ml-3 animate-pulse shadow-sm"></div>
           </div>
         </div>
       </div>
       
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
+      {/* Enhanced Stat Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 mb-8 lg:mb-10">
         <StatCard
           title="Active Emergencies"
           value={activeEmergenciesCount.toString()}
-          icon={<AlertTriangle className="h-4 lg:h-5 w-4 lg:w-5" />}
+          icon={<AlertTriangle className="h-6 w-6" />}
           trend={{ value: 12, isPositive: false }}
           color="red"
         />
         <StatCard
           title="Available Ambulances"
           value={availableAmbulances.toString()}
-          icon={<Ambulance className="h-4 lg:h-5 w-4 lg:w-5" />}
+          icon={<Ambulance className="h-6 w-6" />}
           trend={{ value: 3, isPositive: true }}
           color="blue"
         />
         <StatCard
           title="Patients In Transit"
           value={patientsInTransit.toString()}
-          icon={<Users className="h-4 lg:h-5 w-4 lg:w-5" />}
+          icon={<Users className="h-6 w-6" />}
           color="green"
         />
         <StatCard
           title="Available Beds"
           value={availableBeds.toString()}
-          icon={<Bed className="h-4 lg:h-5 w-4 lg:w-5" />}
+          icon={<Bed className="h-6 w-6" />}
           trend={{ value: 5, isPositive: false }}
           color="green"
         />
       </div>
       
-      {/* Map and Hospital Beds */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-        <div className="xl:col-span-2">
+      {/* Enhanced Map and Hospital Beds Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 lg:gap-8 mb-8 lg:mb-10">
+        <div className="xl:col-span-3">
           <EmergencyMap />
         </div>
-        <div className="xl:col-span-1">
+        <div className="xl:col-span-2">
           <HospitalBeds />
         </div>
       </div>
       
-      {/* Active Emergencies and Ambulances */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+      {/* Enhanced Active Emergencies and Ambulances Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         <ActiveEmergencies />
         <AmbulanceStatus />
       </div>

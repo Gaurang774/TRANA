@@ -18,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
   }, [location.pathname]);
   
   return (
-    <div className="min-h-screen bg-neutral-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex transition-colors duration-300">
       {/* Sidebar */}
       <EmergencySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
@@ -26,7 +26,7 @@ const Layout = ({ children }: LayoutProps) => {
       <div className="flex-1 flex flex-col md:ml-64">
         <EmergencyHeader toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
