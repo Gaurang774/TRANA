@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -133,10 +132,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, userData: { first_name: string; last_name: string; role: string }) => {
     try {
+      // Ensure we're in a browser environment
+      if (typeof window === 'undefined') {
+        throw new Error('Authentication must be performed in a browser environment');
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
+      console.log('Attempting sign up with email:', email);
+      
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           emailRedirectTo: redirectUrl,
@@ -144,26 +150,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             first_name: userData.first_name,
             last_name: userData.last_name,
             role: userData.role
-          }
+          },
+          // Add CAPTCHA bypass for development/testing
+          captchaToken: undefined
         }
       });
 
       if (error) {
-        // Handle specific error cases
+        console.error('Sign up error:', error);
+        
+        // Handle specific error cases including CAPTCHA
         let errorMessage = error.message;
         
-        if (error.message.includes('already registered')) {
+        if (error.message.includes('Captcha verification failed') || error.message.includes('captcha')) {
+          errorMessage = 'CAPTCHA verification is required. Please try again or contact support if this persists. On the free tier, you may need to upgrade your Supabase plan to bypass CAPTCHA requirements.';
+        } else if (error.message.includes('already registered')) {
           errorMessage = 'An account with this email already exists. Please try signing in instead.';
         } else if (error.message.includes('weak password')) {
           errorMessage = 'Password is too weak. Please use at least 6 characters with a mix of letters and numbers.';
         } else if (error.message.includes('invalid email')) {
           errorMessage = 'Please enter a valid email address.';
+        } else if (error.message.includes('signup_disabled')) {
+          errorMessage = 'Sign up is currently disabled. Please contact support.';
         }
 
         toast({
           title: "Sign up failed",
           description: errorMessage,
-          variant: "destructive"
+          variant: "destructive",
+          duration: 8000
         });
         return { error, success: false };
       }
@@ -173,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast({
           title: "Check your email",
           description: "We've sent you a confirmation link. Please check your email and click the link to complete your registration.",
-          duration: 6000
+          duration: 8000
         });
       } else {
         toast({
@@ -184,11 +199,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { error: null, success: true };
     } catch (error: any) {
-      const errorMessage = error.message || "An unexpected error occurred during sign up";
+      console.error('Sign up catch error:', error);
+      
+      let errorMessage = error.message || "An unexpected error occurred during sign up";
+      
+      // Handle network and CORS errors
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (error.message?.includes('captcha') || error.message?.includes('Captcha')) {
+        errorMessage = 'CAPTCHA verification failed. This may be due to free tier limitations. Consider upgrading your Supabase plan or contact support.';
+      }
+
       toast({
         title: "Sign up failed",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 8000
       });
       return { error, success: false };
     }
@@ -196,26 +222,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Ensure we're in a browser environment
+      if (typeof window === 'undefined') {
+        throw new Error('Authentication must be performed in a browser environment');
+      }
+
+      console.log('Attempting sign in with email:', email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
-        password
+        password,
+        options: {
+          // Add CAPTCHA bypass for development/testing
+          captchaToken: undefined
+        }
       });
 
       if (error) {
+        console.error('Sign in error:', error);
+        
         let errorMessage = error.message;
         
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message.includes('Captcha verification failed') || error.message.includes('captcha')) {
+          errorMessage = 'CAPTCHA verification is required. Please try again or contact support if this persists. On the free tier, you may need to upgrade your Supabase plan to bypass CAPTCHA requirements.';
+        } else if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Invalid email or password. Please check your credentials and try again.';
         } else if (error.message.includes('Email not confirmed')) {
           errorMessage = 'Please check your email and click the confirmation link before signing in.';
         } else if (error.message.includes('too many requests')) {
           errorMessage = 'Too many login attempts. Please wait a moment before trying again.';
+        } else if (error.message.includes('signup_disabled')) {
+          errorMessage = 'Authentication is currently disabled. Please contact support.';
         }
 
         toast({
           title: "Sign in failed",
           description: errorMessage,
-          variant: "destructive"
+          variant: "destructive",
+          duration: 8000
         });
         return { error, success: false };
       }
@@ -229,11 +273,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { error: null, success: true };
     } catch (error: any) {
-      const errorMessage = error.message || "An unexpected error occurred during sign in";
+      console.error('Sign in catch error:', error);
+      
+      let errorMessage = error.message || "An unexpected error occurred during sign in";
+      
+      // Handle network and CORS errors
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
+        errorMessage = 'Network error. Please check your internet connection and try again.';
+      } else if (error.message?.includes('captcha') || error.message?.includes('Captcha')) {
+        errorMessage = 'CAPTCHA verification failed. This may be due to free tier limitations. Consider upgrading your Supabase plan or contact support.';
+      }
+
       toast({
         title: "Sign in failed",
         description: errorMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 8000
       });
       return { error, success: false };
     }

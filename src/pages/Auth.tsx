@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Heart, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Loader2, Heart, Eye, EyeOff, AlertCircle, Info } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -90,26 +90,36 @@ const Auth: React.FC = () => {
 
   const handleSignIn = async (data: SignInForm) => {
     setLoading(true);
-    const { error, success } = await signIn(data.email, data.password);
-    setLoading(false);
-    
-    if (success) {
-      // Navigation is handled in useEffect above
+    try {
+      const { error, success } = await signIn(data.email, data.password);
+      
+      if (success) {
+        // Navigation is handled in useEffect above
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSignUp = async (data: SignUpForm) => {
     setLoading(true);
-    const { error, success } = await signUp(data.email, data.password, {
-      first_name: data.firstName,
-      last_name: data.lastName,
-      role: data.role
-    });
-    setLoading(false);
-    
-    if (success) {
-      // Reset form on successful signup
-      signUpForm.reset();
+    try {
+      const { error, success } = await signUp(data.email, data.password, {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        role: data.role
+      });
+      
+      if (success) {
+        // Reset form on successful signup
+        signUpForm.reset();
+      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,6 +147,14 @@ const Auth: React.FC = () => {
           <CardDescription>Emergency Hospital Coordination System</CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert className="mb-4">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              If you encounter CAPTCHA verification issues, this may be due to free tier limitations. 
+              The system will handle this automatically where possible.
+            </AlertDescription>
+          </Alert>
+          
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
