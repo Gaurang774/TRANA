@@ -18,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
   }, [location.pathname]);
   
   return (
-    <div className="min-h-screen bg-gray-50/30 flex">
+    <div className="min-h-screen bg-neutral-50 flex">
       {/* Sidebar */}
       <EmergencySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       

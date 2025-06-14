@@ -15,14 +15,14 @@ const Index = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-light text-gray-900 mb-2">Emergency Dashboard</h1>
-            <p className="text-gray-500 font-light">Real-time medical emergency management system</p>
+            <h1 className="text-3xl font-semibold text-neutral-900 mb-2">Emergency Dashboard</h1>
+            <p className="text-neutral-600">Real-time medical emergency management system</p>
           </div>
           
-          <div className="bg-white border border-gray-200 px-4 py-2 rounded-lg flex items-center shadow-sm">
-            <Activity className="h-4 w-4 text-green-500 mr-2" />
-            <span className="text-sm text-gray-600">System Active</span>
-            <div className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse"></div>
+          <div className="bg-white border border-neutral-200 px-4 py-2 rounded-lg flex items-center shadow-soft">
+            <Activity className="h-4 w-4 text-medical-green mr-2" />
+            <span className="text-sm text-neutral-600 font-medium">System Active</span>
+            <div className="w-2 h-2 bg-medical-green rounded-full ml-2 animate-pulse"></div>
           </div>
         </div>
       </div>

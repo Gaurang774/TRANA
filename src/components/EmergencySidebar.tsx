@@ -47,16 +47,18 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
       
       <div 
         className={`
-          fixed inset-y-0 left-0 w-64 bg-white/95 backdrop-blur-sm border-r border-gray-100 transform z-30 transition-transform duration-300 ease-in-out
+          fixed inset-y-0 left-0 w-64 bg-white border-r border-neutral-200 transform z-30 transition-transform duration-300 ease-in-out shadow-large
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
         `}
       >
-        <div className="px-6 py-6 border-b border-gray-100">
+        <div className="px-6 py-6 border-b border-neutral-200">
           <div className="flex items-center">
-            <Heart className="h-8 w-8 text-red-500" />
+            <div className="flex items-center justify-center w-10 h-10 bg-medical-red rounded-lg">
+              <Heart className="h-6 w-6 text-white" />
+            </div>
             <div className="ml-3">
-              <h1 className="text-xl font-light text-gray-900">Trana</h1>
-              <p className="text-xs text-gray-500 font-light">Medical EMS</p>
+              <h1 className="text-xl font-semibold text-neutral-900">Trana</h1>
+              <p className="text-xs text-neutral-500">Medical EMS</p>
             </div>
           </div>
         </div>
@@ -68,16 +70,16 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
                 <Link
                   to={item.path}
                   className={`
-                    flex items-center px-4 py-3 text-gray-600 rounded-xl transition-all duration-200 group
+                    flex items-center px-4 py-3 text-neutral-600 rounded-lg transition-all duration-200 group
                     ${isActive(item.path) 
-                      ? 'bg-blue-50 text-blue-600 shadow-sm' 
-                      : 'hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-medical-blue text-white shadow-soft' 
+                      : 'hover:bg-neutral-100 hover:text-neutral-900'
                     }
                   `}
                   onClick={isOpen ? onClose : undefined}
                 >
                   <span className={`
-                    ${isActive(item.path) ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600'}
+                    ${isActive(item.path) ? 'text-white' : 'text-neutral-400 group-hover:text-neutral-600'}
                     transition-colors duration-200
                   `}>
                     {item.icon}

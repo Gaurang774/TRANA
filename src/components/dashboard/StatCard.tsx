@@ -16,47 +16,47 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, icon, trend, color = 'blue' }: StatCardProps) => {
   const colorVariants = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-100',
-    green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    red: 'bg-red-50 text-red-600 border-red-100',
-    yellow: 'bg-amber-50 text-amber-600 border-amber-100',
+    blue: 'bg-medical-blue/10 text-medical-blue border-medical-blue/20',
+    green: 'bg-medical-green/10 text-medical-green border-medical-green/20',
+    red: 'bg-medical-red/10 text-medical-red border-medical-red/20',
+    yellow: 'bg-medical-yellow/10 text-medical-yellow border-medical-yellow/20',
   };
 
   const iconBgVariants = {
-    blue: 'bg-blue-500',
-    green: 'bg-emerald-500',
-    red: 'bg-red-500',
-    yellow: 'bg-amber-500',
+    blue: 'bg-medical-blue',
+    green: 'bg-medical-green',
+    red: 'bg-medical-red',
+    yellow: 'bg-medical-yellow',
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white rounded-lg border border-neutral-200 p-6 shadow-soft hover:shadow-medium transition-all duration-200">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-500 mb-2">{title}</p>
-          <h3 className="text-3xl font-light text-gray-900 mb-3">{value}</h3>
+          <p className="text-sm font-medium text-neutral-500 mb-2">{title}</p>
+          <h3 className="text-3xl font-semibold text-neutral-900 mb-3">{value}</h3>
           
           {trend && (
             <div className="flex items-center">
               {trend.isPositive ? (
-                <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+                <TrendingUp className="h-4 w-4 text-medical-green mr-1" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                <TrendingDown className="h-4 w-4 text-medical-red mr-1" />
               )}
               <span
                 className={cn(
                   "text-sm font-medium",
-                  trend.isPositive ? 'text-emerald-600' : 'text-red-600'
+                  trend.isPositive ? 'text-medical-green' : 'text-medical-red'
                 )}
               >
                 {Math.abs(trend.value)}%
               </span>
-              <span className="text-sm text-gray-400 ml-1">vs last period</span>
+              <span className="text-sm text-neutral-400 ml-1">vs last period</span>
             </div>
           )}
         </div>
         
-        <div className={cn('p-3 rounded-xl', iconBgVariants[color])}>
+        <div className={cn('p-3 rounded-lg', iconBgVariants[color])}>
           <div className="text-white">
             {icon}
           </div>
