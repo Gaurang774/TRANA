@@ -16,6 +16,7 @@ import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { RoleBasedRedirect } from "./components/auth/RoleBasedRedirect";
 import { useEffect } from "react";
 
 // Create a component to handle redirects from auth routes
@@ -54,7 +55,9 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
               <ProtectedRoute>
-                <Index />
+                <RoleBasedRedirect>
+                  <Index />
+                </RoleBasedRedirect>
               </ProtectedRoute>
             } />
             <Route path="/emergency" element={

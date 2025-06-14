@@ -1,14 +1,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart, LogOut } from 'lucide-react';
+import { Heart, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { role } = useUserRole();
   const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
@@ -46,6 +48,11 @@ export const Navigation: React.FC = () => {
     navigate('/auth');
   };
 
+  const getRoleDisplayName = (role: string | null) => {
+    if (!role) return '';
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
+
   return (
     <nav className="border-b bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +65,17 @@ export const Navigation: React.FC = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-600">
-                  Hello, {userName}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <User className="h-4 w-4 text-gray-500" />
+                  <div className="text-sm">
+                    <span className="text-gray-600">Hello, {userName}</span>
+                    {role && (
+                      <div className="text-xs text-blue-600 font-medium">
+                        {getRoleDisplayName(role)}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"

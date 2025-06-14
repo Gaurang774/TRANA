@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, EyeOff } from 'lucide-react';
@@ -30,7 +31,8 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     email: '',
     password: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    role: 'patient' as const
   });
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -83,7 +85,8 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
           emailRedirectTo: redirectUrl,
           data: {
             first_name: signUpData.firstName,
-            last_name: signUpData.lastName
+            last_name: signUpData.lastName,
+            role: signUpData.role
           }
         }
       });
@@ -210,6 +213,26 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       disabled={isLoading}
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="signup-role">Role</Label>
+                  <Select
+                    value={signUpData.role}
+                    onValueChange={(value) => setSignUpData({ ...signUpData, role: value as typeof signUpData.role })}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="patient">Patient</SelectItem>
+                      <SelectItem value="doctor">Doctor</SelectItem>
+                      <SelectItem value="ambulance">Ambulance Crew</SelectItem>
+                      <SelectItem value="staff">Hospital Staff</SelectItem>
+                      <SelectItem value="admin">Administrator</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-2">
