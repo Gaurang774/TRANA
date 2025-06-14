@@ -28,6 +28,13 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from '@/components/ui/alert-dialog';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Medicine {
   id: string;
@@ -82,7 +89,6 @@ const Medicines = () => {
 
       console.log('Fetched medicines:', data);
       setMedicines(data || []);
-      setFilteredMedicines(data || []);
     } catch (error: any) {
       console.error('Error fetching medicines:', error);
       toast({
@@ -90,6 +96,7 @@ const Medicines = () => {
         description: "Failed to fetch medicines information",
         variant: "destructive",
       });
+      setMedicines([]);
     } finally {
       setLoading(false);
     }
@@ -100,11 +107,12 @@ const Medicines = () => {
 
     // Apply search filter
     if (searchTerm.trim() !== '') {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(medicine =>
-        medicine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (medicine.generic_name && medicine.generic_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (medicine.drug_class && medicine.drug_class.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (medicine.active_ingredients && medicine.active_ingredients.toLowerCase().includes(searchTerm.toLowerCase()))
+        medicine.name.toLowerCase().includes(searchLower) ||
+        (medicine.generic_name && medicine.generic_name.toLowerCase().includes(searchLower)) ||
+        (medicine.drug_class && medicine.drug_class.toLowerCase().includes(searchLower)) ||
+        (medicine.active_ingredients && medicine.active_ingredients.toLowerCase().includes(searchLower))
       );
     }
 
@@ -191,15 +199,18 @@ const Medicines = () => {
   // Get unique drug classes for filter dropdown
   const uniqueDrugClasses = [...new Set(medicines.map(m => m.drug_class).filter(Boolean))];
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredMedicines.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  // Pagination logic with proper bounds checking
+  const totalPages = Math.max(1, Math.ceil(filteredMedicines.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentMedicines = filteredMedicines.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const MedicineDetails = ({ medicine }: { medicine: Medicine }) => (
@@ -331,31 +342,33 @@ const Medicines = () => {
               {/* Prescription Filter */}
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />
-                <select
-                  value={filterByPrescription}
-                  onChange={(e) => setFilterByPrescription(e.target.value as 'all' | 'prescription' | 'otc')}
-                  className="border rounded px-2 py-1 text-sm"
-                >
-                  <option value="all">All Types</option>
-                  <option value="prescription">Prescription Only</option>
-                  <option value="otc">Over-the-counter</option>
-                </select>
+                <Select value={filterByPrescription} onValueChange={(value: 'all' | 'prescription' | 'otc') => setFilterByPrescription(value)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="prescription">Prescription Only</SelectItem>
+                    <SelectItem value="otc">Over-the-counter</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Drug Class Filter */}
               <div className="flex items-center gap-2">
-                <select
-                  value={selectedDrugClass}
-                  onChange={(e) => setSelectedDrugClass(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm"
-                >
-                  <option value="all">All Drug Classes</option>
-                  {uniqueDrugClasses.map((drugClass) => (
-                    <option key={drugClass} value={drugClass}>
-                      {drugClass}
-                    </option>
-                  ))}
-                </select>
+                <Select value={selectedDrugClass} onValueChange={setSelectedDrugClass}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by drug class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Drug Classes</SelectItem>
+                    {uniqueDrugClasses.map((drugClass) => (
+                      <SelectItem key={drugClass} value={drugClass}>
+                        {drugClass}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Sort Options */}
@@ -471,14 +484,14 @@ const Medicines = () => {
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
+            {totalPages > 1 && filteredMedicines.length > 0 && (
               <div className="flex justify-center">
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious 
-                        onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-                        className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        onClick={() => handlePageChange(safeCurrentPage - 1)}
+                        className={safeCurrentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                       />
                     </PaginationItem>
                     
@@ -486,7 +499,7 @@ const Medicines = () => {
                       <PaginationItem key={page}>
                         <PaginationLink
                           onClick={() => handlePageChange(page)}
-                          isActive={page === currentPage}
+                          isActive={page === safeCurrentPage}
                           className="cursor-pointer"
                         >
                           {page}
@@ -496,8 +509,8 @@ const Medicines = () => {
                     
                     <PaginationItem>
                       <PaginationNext 
-                        onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
-                        className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        onClick={() => handlePageChange(safeCurrentPage + 1)}
+                        className={safeCurrentPage >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                       />
                     </PaginationItem>
                   </PaginationContent>
