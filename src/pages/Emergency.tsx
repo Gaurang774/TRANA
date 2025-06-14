@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import TriagePrediction from '@/components/triage/TriagePrediction';
+import TranaAssistant from '@/components/assistant/TranaAssistant';
+import { useTranaAssistant } from '@/hooks/useTranaAssistant';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,6 +45,9 @@ const Emergency = () => {
     priority: 'medium',
     notes: ''
   });
+  
+  // TRANA Assistant integration
+  const { isMinimized, toggleMinimize, context } = useTranaAssistant();
   
   // Fetch emergencies
   const { data: emergencies, isLoading, error, refetch } = useQuery({
@@ -492,6 +497,13 @@ const Emergency = () => {
           )}
         </TabsContent>
       </Tabs>
+      
+      {/* TRANA Assistant Integration */}
+      <TranaAssistant 
+        isMinimized={isMinimized}
+        onToggleMinimize={toggleMinimize}
+        context={context}
+      />
     </Layout>
   );
 };

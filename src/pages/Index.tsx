@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
@@ -7,10 +6,15 @@ import HospitalBeds from '@/components/dashboard/HospitalBeds';
 import EmergencyMap from '@/components/dashboard/EmergencyMap';
 import ActiveEmergencies from '@/components/dashboard/ActiveEmergencies';
 import AmbulanceStatus from '@/components/dashboard/AmbulanceStatus';
+import TranaAssistant from '@/components/assistant/TranaAssistant';
+import { useTranaAssistant } from '@/hooks/useTranaAssistant';
 import { supabase } from '@/integrations/supabase/client';
 import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity } from 'lucide-react';
 
 const Index = () => {
+  // TRANA Assistant integration
+  const { isMinimized, toggleMinimize, context } = useTranaAssistant();
+
   // Fetch real-time dashboard data
   const { data: emergencies } = useQuery({
     queryKey: ['emergencies'],
@@ -121,6 +125,13 @@ const Index = () => {
         <ActiveEmergencies />
         <AmbulanceStatus />
       </div>
+      
+      {/* TRANA Assistant Integration */}
+      <TranaAssistant 
+        isMinimized={isMinimized}
+        onToggleMinimize={toggleMinimize}
+        context={context}
+      />
     </Layout>
   );
 };
