@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import AddMedicineForm from '@/components/medicines/AddMedicineForm';
 
 interface Medicine {
   id: string;
@@ -64,16 +64,28 @@ const Medicines = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterByPrescription, setFilterByPrescription] = useState<'all' | 'prescription' | 'otc'>('all');
   const [selectedDrugClass, setSelectedDrugClass] = useState('all');
+  const [userRole, setUserRole] = useState<string | null>(null);
   
   const itemsPerPage = 9;
 
   useEffect(() => {
     fetchMedicines();
+    fetchUserRole();
   }, []);
 
   useEffect(() => {
     filterAndSortMedicines();
   }, [searchTerm, medicines, sortBy, sortOrder, filterByPrescription, selectedDrugClass]);
+
+  const fetchUserRole = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_user_role');
+      if (error) throw error;
+      setUserRole(data);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    }
+  };
 
   const fetchMedicines = async () => {
     try {
@@ -213,6 +225,8 @@ const Medicines = () => {
     }
   };
 
+  const canAddMedicine = userRole && ['admin', 'doctor', 'nurse'].includes(userRole);
+
   const MedicineDetails = ({ medicine }: { medicine: Medicine }) => (
     <div className="space-y-4 max-h-96 overflow-y-auto">
       <div>
@@ -313,10 +327,15 @@ const Medicines = () => {
               </p>
             </div>
           </div>
-          <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            {canAddMedicine && (
+              <AddMedicineForm onMedicineAdded={fetchMedicines} />
+            )}
+            <Button onClick={handleRefresh} variant="outline" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Search and Filters */}

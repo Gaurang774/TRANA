@@ -1008,6 +1008,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_medicine: {
+        Args: {
+          p_name: string
+          p_generic_name?: string
+          p_description?: string
+          p_uses?: string
+          p_dosage?: string
+          p_side_effects?: string
+          p_warnings?: string
+          p_drug_class?: string
+          p_prescription_required?: boolean
+          p_active_ingredients?: string
+          p_brand_names?: string[]
+          p_interactions?: string
+          p_manufacturer?: string
+        }
+        Returns: string
+      }
       assign_ambulance: {
         Args: {
           p_emergency_id: string
