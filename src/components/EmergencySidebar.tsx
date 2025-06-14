@@ -8,7 +8,8 @@ import {
   Map, 
   FileText, 
   Settings as SettingsIcon,
-  Bed
+  Bed,
+  Calendar
 } from 'lucide-react';
 
 interface EmergencySidebarProps {
@@ -23,6 +24,7 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
   const navItems = [
     { path: '/', icon: <Home size={20} />, label: 'Dashboard' },
     { path: '/emergency', icon: <Bell size={20} />, label: 'Emergency' },
+    { path: '/appointments', icon: <Calendar size={20} />, label: 'Appointments' },
     { path: '/beds', icon: <Bed size={20} />, label: 'Bed Management' },
     { path: '/routes', icon: <Map size={20} />, label: 'Route Planning' },
     { path: '/reports', icon: <FileText size={20} />, label: 'Reports' },

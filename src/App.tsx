@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Emergency from "./pages/Emergency";
 import Settings from "./pages/Settings";
 import Medicines from "./pages/Medicines";
+import Appointments from "./pages/Appointments";
 import NotFound from "./pages/NotFound";
 import BedManagement from "./pages/BedManagement";
 import RoutePlanning from "./pages/RoutePlanning";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/emergency" element={<Emergency />} />
             <Route path="/medicines" element={<Medicines />} />
+            <Route path="/appointments" element={<Appointments />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/beds" element={<BedManagement />} />
             <Route path="/routes" element={<RoutePlanning />} />
