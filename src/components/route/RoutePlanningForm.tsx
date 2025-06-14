@@ -6,9 +6,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { 
   Navigation, Route, Clock, MapPin, LocateFixed, Ambulance, 
-  Save, Share2, Printer, History, ArrowRightCircle, Settings
+  Save, Share2, Printer, History, ArrowRightCircle, Settings,
+  Plus, AlertCircle, Heart, Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,7 +33,6 @@ const RoutePlanningForm = ({ onRouteCalculate }: RoutePlanningFormProps) => {
     if (origin && destination) {
       onRouteCalculate(origin, destination);
       
-      // Update the UI to show calculation in progress
       toast({
         title: "Calculating Route",
         description: `Finding optimal route from ${origin} to ${destination}`,
@@ -92,371 +93,452 @@ const RoutePlanningForm = ({ onRouteCalculate }: RoutePlanningFormProps) => {
     { id: "AMB-005", status: "Maintenance", location: "West Kolkata", type: "Basic Life Support", team: "2 members" }
   ];
   
-  // Getting current date and time for the history tab
   const currentDateTime = new Date().toLocaleString();
 
+  const getSeverityBadge = (severity: string) => {
+    const variants = {
+      "Critical": "bg-red-600 text-white",
+      "High": "bg-red-500 text-white", 
+      "Medium": "bg-amber-500 text-white",
+      "Low": "bg-green-500 text-white"
+    };
+    return variants[severity as keyof typeof variants] || "bg-gray-500 text-white";
+  };
+
+  const getStatusColor = (status: string) => {
+    const colors = {
+      "Available": "bg-brand-success",
+      "En Route": "bg-brand-warning", 
+      "On Call": "bg-brand-info",
+      "Maintenance": "bg-gray-400"
+    };
+    return colors[status as keyof typeof colors] || "bg-gray-400";
+  };
+
   return (
-    <Card className="p-4 bg-white shadow">
+    <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-0 rounded-xl overflow-hidden">
       <Tabs defaultValue="route" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-4">
-          <TabsTrigger value="route">
-            <Route className="mr-2 h-4 w-4" />
-            Plan Route
+        <TabsList className="grid grid-cols-4 mb-6 bg-gray-50/80 p-1 rounded-lg">
+          <TabsTrigger value="route" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all">
+            <Route className="h-4 w-4" />
+            <span className="hidden sm:inline">Plan Route</span>
           </TabsTrigger>
-          <TabsTrigger value="emergency">
-            <Ambulance className="mr-2 h-4 w-4" />
-            Emergencies
+          <TabsTrigger value="emergency" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all">
+            <AlertCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Emergencies</span>
           </TabsTrigger>
-          <TabsTrigger value="units">
-            <LocateFixed className="mr-2 h-4 w-4" />
-            Units
+          <TabsTrigger value="units" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all">
+            <LocateFixed className="h-4 w-4" />
+            <span className="hidden sm:inline">Units</span>
           </TabsTrigger>
-          <TabsTrigger value="history">
-            <History className="mr-2 h-4 w-4" />
-            History
+          <TabsTrigger value="history" className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all">
+            <History className="h-4 w-4" />
+            <span className="hidden sm:inline">History</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="route" className="space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-1">
-                Origin
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="origin"
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                  placeholder="Enter starting location"
-                  className="pl-9"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="destination" className="block text-sm font-medium text-gray-700 mb-1">
-                Destination
-              </label>
-              <div className="relative">
-                <Navigation className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input 
-                  id="destination"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  placeholder="Enter destination"
-                  className="pl-9"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="route-mode">Route Type</Label>
-                <Select value={routeMode} onValueChange={setRouteMode}>
-                  <SelectTrigger id="route-mode">
-                    <SelectValue placeholder="Select route type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fastest">Fastest Route</SelectItem>
-                    <SelectItem value="shortest">Shortest Distance</SelectItem>
-                    <SelectItem value="no-highways">Avoid Highways</SelectItem>
-                    <SelectItem value="no-tolls">Avoid Tolls</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-1.5">
-                <Label htmlFor="traffic-model">Traffic Model</Label>
-                <Select value={trafficModel} onValueChange={setTrafficModel}>
-                  <SelectTrigger id="traffic-model">
-                    <SelectValue placeholder="Select traffic model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="realtime">Real-time Traffic</SelectItem>
-                    <SelectItem value="none">No Traffic</SelectItem>
-                    <SelectItem value="typical">Typical Traffic</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="flex items-center space-x-2 text-sm">
-                <Route className="h-4 w-4 text-medical-blue" />
-                <span className="text-gray-700">Distance:</span>
-                <span id="route-distance" className="font-semibold">-</span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <Clock className="h-4 w-4 text-medical-red" />
-                <span className="text-gray-700">ETA:</span>
-                <span id="route-time" className="font-semibold">-</span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Button type="submit" className="flex-1">
-                <Navigation className="mr-2 h-4 w-4" />
-                Calculate Route
-              </Button>
-              
-              {origin && destination && (
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => setIsSaveModalOpen(true)}
-                  className="flex-1"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Route
-                </Button>
-              )}
-            </div>
-
-            {isSaveModalOpen && (
-              <div className="border rounded-md p-4 mt-2 bg-gray-50">
-                <h4 className="font-medium mb-2">Save Route</h4>
+        <div className="px-6 pb-6">
+          <TabsContent value="route" className="mt-0 space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid gap-6">
                 <div className="space-y-2">
+                  <Label htmlFor="origin" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-brand-primary" />
+                    Origin Location
+                  </Label>
                   <Input 
-                    placeholder="Enter route name" 
-                    value={routeName}
-                    onChange={(e) => setRouteName(e.target.value)}
+                    id="origin"
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    placeholder="Enter starting location..."
+                    className="h-12 px-4 border-2 border-gray-200 focus:border-brand-primary transition-colors rounded-lg"
+                    required
                   />
-                  <div className="flex gap-2 justify-end">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setIsSaveModalOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      onClick={handleSaveRoute}
-                      disabled={!routeName}
-                    >
-                      Save
-                    </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="destination" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Navigation className="h-4 w-4 text-brand-secondary" />
+                    Destination
+                  </Label>
+                  <Input 
+                    id="destination"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    placeholder="Enter destination..."
+                    className="h-12 px-4 border-2 border-gray-200 focus:border-brand-primary transition-colors rounded-lg"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="route-mode" className="text-sm font-semibold text-gray-700">Route Type</Label>
+                    <Select value={routeMode} onValueChange={setRouteMode}>
+                      <SelectTrigger id="route-mode" className="h-12 border-2 border-gray-200 focus:border-brand-primary rounded-lg">
+                        <SelectValue placeholder="Select route type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-2 shadow-lg rounded-lg">
+                        <SelectItem value="fastest">🚀 Fastest Route</SelectItem>
+                        <SelectItem value="shortest">📏 Shortest Distance</SelectItem>
+                        <SelectItem value="no-highways">🛣️ Avoid Highways</SelectItem>
+                        <SelectItem value="no-tolls">💰 Avoid Tolls</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="traffic-model" className="text-sm font-semibold text-gray-700">Traffic Model</Label>
+                    <Select value={trafficModel} onValueChange={setTrafficModel}>
+                      <SelectTrigger id="traffic-model" className="h-12 border-2 border-gray-200 focus:border-brand-primary rounded-lg">
+                        <SelectValue placeholder="Select traffic model" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-2 shadow-lg rounded-lg">
+                        <SelectItem value="realtime">🔴 Real-time Traffic</SelectItem>
+                        <SelectItem value="none">⚪ No Traffic</SelectItem>
+                        <SelectItem value="typical">🟡 Typical Traffic</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            <div className="flex space-x-2 justify-center text-sm pt-2">
-              <Button variant="ghost" size="sm">
-                <Share2 className="h-3.5 w-3.5 mr-1" />
-                Share
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Printer className="h-3.5 w-3.5 mr-1" />
-                Print
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-3.5 w-3.5 mr-1" />
-                Options
-              </Button>
-            </div>
-          </form>
-        </TabsContent>
 
-        <TabsContent value="emergency" className="space-y-2">
-          <h3 className="font-medium text-sm text-gray-600 mb-2">Active Emergency Locations</h3>
-          {emergencyLocations.map(location => (
-            <div key={location.id} className="flex items-center p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-              <div className={`w-2.5 h-2.5 rounded-full ${
-                location.severity === "Critical" ? "bg-red-600" : 
-                location.severity === "High" ? "bg-medical-red" : 
-                "bg-medical-yellow"
-              } mr-2 animate-pulse`}></div>
-              <div className="flex-grow">
-                <div className="flex justify-between">
-                  <p className="font-medium text-sm">{location.name}</p>
-                  <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                    location.severity === "Critical" ? "bg-red-100 text-red-800" : 
-                    location.severity === "High" ? "bg-medical-red/20 text-medical-red" : 
-                    "bg-medical-yellow/20 text-medical-yellow-darker"
-                  }`}>
-                    {location.severity}
-                  </span>
+                <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Route className="h-5 w-5 text-brand-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Distance</p>
+                          <p id="route-distance" className="font-bold text-lg text-gray-900">-</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-red-100 rounded-lg">
+                          <Clock className="h-5 w-5 text-brand-danger" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">ETA</p>
+                          <p id="route-time" className="font-bold text-lg text-gray-900">-</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button type="submit" className="flex-1 h-12 bg-gradient-to-r from-brand-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200">
+                    <Navigation className="mr-2 h-5 w-5" />
+                    Calculate Route
+                  </Button>
+                  
+                  {origin && destination && (
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setIsSaveModalOpen(true)}
+                      className="flex-1 h-12 border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white transition-all duration-200 rounded-lg"
+                    >
+                      <Save className="mr-2 h-5 w-5" />
+                      Save Route
+                    </Button>
+                  )}
                 </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-xs text-gray-500">{location.coords} • {location.type}</p>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="ml-auto"
-                    onClick={() => {
-                      setOrigin("Your current location");
-                      setDestination(location.name);
-                    }}
-                  >
-                    <Navigation className="h-3.5 w-3.5" />
+
+                {isSaveModalOpen && (
+                  <Card className="border-2 border-blue-200 bg-blue-50/50">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold mb-3 text-gray-800 flex items-center gap-2">
+                        <Save className="h-4 w-4" />
+                        Save Route
+                      </h4>
+                      <div className="space-y-3">
+                        <Input 
+                          placeholder="Enter route name..." 
+                          value={routeName}
+                          onChange={(e) => setRouteName(e.target.value)}
+                          className="border-2 border-gray-200 focus:border-brand-primary rounded-lg"
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => setIsSaveModalOpen(false)}
+                            className="border-gray-300 text-gray-600 hover:bg-gray-50"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            onClick={handleSaveRoute}
+                            disabled={!routeName}
+                            className="bg-brand-primary hover:bg-blue-600"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                <div className="flex flex-wrap justify-center gap-2 pt-2 border-t border-gray-200">
+                  <Button variant="ghost" size="sm" className="text-gray-600 hover:text-brand-primary hover:bg-blue-50">
+                    <Share2 className="h-4 w-4 mr-1" />
+                    Share
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-gray-600 hover:text-brand-primary hover:bg-blue-50">
+                    <Printer className="h-4 w-4 mr-1" />
+                    Print
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-gray-600 hover:text-brand-primary hover:bg-blue-50">
+                    <Settings className="h-4 w-4 mr-1" />
+                    Options
                   </Button>
                 </div>
               </div>
-            </div>
-          ))}
-          <Button variant="outline" size="sm" className="w-full mt-2">
-            Add New Emergency
-          </Button>
-        </TabsContent>
+            </form>
+          </TabsContent>
 
-        <TabsContent value="units">
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium text-sm text-gray-600 mb-2">Hospitals</h3>
-              <div className="space-y-2">
-                {hospitalLocations.map(hospital => (
-                  <div key={hospital.id} className="flex items-center p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-                    <div className="w-2.5 h-2.5 rounded-full bg-medical-green mr-2"></div>
-                    <div className="flex-grow">
-                      <div className="flex justify-between">
-                        <p className="font-medium text-sm">{hospital.name}</p>
-                        <span className="text-xs text-medical-green">{hospital.beds}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs text-gray-500">{hospital.address} • {hospital.specialties}</p>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="ml-auto"
-                          onClick={() => {
-                            setDestination(hospital.name);
-                          }}
-                        >
-                          <Navigation className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <TabsContent value="emergency" className="mt-0 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+                Active Emergency Locations
+              </h3>
+              <Badge variant="destructive" className="animate-pulse">
+                {emergencyLocations.length} Active
+              </Badge>
             </div>
-
-            <div>
-              <h3 className="font-medium text-sm text-gray-600 mb-2">Ambulance Units</h3>
-              <div className="space-y-2">
-                {ambulanceUnits.map(unit => (
-                  <div key={unit.id} className="flex items-center p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-                    <div className={`w-2.5 h-2.5 rounded-full ${
-                      unit.status === "Available" ? "bg-medical-blue" : 
-                      unit.status === "En Route" ? "bg-medical-yellow" : 
-                      unit.status === "On Call" ? "bg-medical-green" :
-                      "bg-gray-400"
-                    } mr-2 ${unit.status === "Available" ? "animate-pulse-slow" : ""}`}></div>
-                    <div className="flex-grow">
-                      <div className="flex justify-between">
-                        <p className="font-medium text-sm">{unit.id}</p>
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                          unit.status === "Available" ? "bg-medical-blue/20 text-medical-blue" : 
-                          unit.status === "En Route" ? "bg-medical-yellow/20 text-medical-yellow-darker" : 
-                          unit.status === "On Call" ? "bg-medical-green/20 text-medical-green" :
-                          "bg-gray-100 text-gray-600"
-                        }`}>
-                          {unit.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs text-gray-500">{unit.location} • {unit.type} • {unit.team}</p>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="ml-auto"
-                          onClick={() => {
-                            setOrigin(unit.id);
-                          }}
-                        >
-                          <LocateFixed className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="history" className="space-y-4">
-          <div>
-            <h3 className="font-medium text-sm text-gray-600 mb-2">Saved Routes</h3>
-            {savedRoutes.length > 0 ? (
-              <div className="space-y-2">
-                {savedRoutes.map((route, index) => (
-                  <div key={index} className="p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-sm">{route.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">From: {route.origin}</p>
-                        <p className="text-xs text-gray-500">To: {route.destination}</p>
+            <div className="space-y-3">
+              {emergencyLocations.map(location => (
+                <Card key={location.id} className="border-l-4 border-l-red-500 hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            location.severity === "Critical" ? "bg-red-600 animate-pulse" : 
+                            location.severity === "High" ? "bg-red-500 animate-pulse" : 
+                            "bg-amber-500"
+                          }`}></div>
+                          <h4 className="font-semibold text-gray-900">{location.name}</h4>
+                          <Badge className={getSeverityBadge(location.severity)} variant="secondary">
+                            {location.severity}
+                          </Badge>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm text-gray-600">📍 {location.coords}</p>
+                          <p className="text-sm text-gray-600">🏥 {location.type}</p>
+                        </div>
                       </div>
                       <Button 
-                        variant="ghost" 
+                        variant="outline" 
                         size="sm"
-                        onClick={() => handleLoadRoute(index)}
+                        onClick={() => {
+                          setOrigin("Your current location");
+                          setDestination(location.name);
+                        }}
+                        className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
+                      >
+                        <Navigation className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Button variant="outline" className="w-full border-2 border-dashed border-gray-300 text-gray-600 hover:border-brand-primary hover:text-brand-primary">
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Emergency
+            </Button>
+          </TabsContent>
+
+          <TabsContent value="units" className="mt-0 space-y-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Heart className="h-5 w-5 text-red-500" />
+                <h3 className="font-semibold text-gray-800">Hospitals</h3>
+              </div>
+              <div className="space-y-3">
+                {hospitalLocations.map(hospital => (
+                  <Card key={hospital.id} className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            <h4 className="font-semibold text-gray-900">{hospital.name}</h4>
+                            <Badge className="bg-green-100 text-green-700" variant="secondary">
+                              {hospital.beds}
+                            </Badge>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">📍 {hospital.address}</p>
+                            <p className="text-sm text-gray-600">🏥 {hospital.specialties}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setDestination(hospital.name)}
+                          className="border-green-500 text-green-600 hover:bg-green-500 hover:text-white"
+                        >
+                          <Navigation className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Ambulance className="h-5 w-5 text-blue-500" />
+                <h3 className="font-semibold text-gray-800">Ambulance Units</h3>
+              </div>
+              <div className="space-y-3">
+                {ambulanceUnits.map(unit => (
+                  <Card key={unit.id} className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`w-3 h-3 rounded-full ${getStatusColor(unit.status)} ${unit.status === "Available" ? "animate-pulse" : ""}`}></div>
+                            <h4 className="font-semibold text-gray-900">{unit.id}</h4>
+                            <Badge className={`${
+                              unit.status === "Available" ? "bg-green-100 text-green-700" : 
+                              unit.status === "En Route" ? "bg-amber-100 text-amber-700" : 
+                              unit.status === "On Call" ? "bg-blue-100 text-blue-700" :
+                              "bg-gray-100 text-gray-600"
+                            }`} variant="secondary">
+                              {unit.status}
+                            </Badge>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">📍 {unit.location}</p>
+                            <p className="text-sm text-gray-600">🚑 {unit.type}</p>
+                            <p className="text-sm text-gray-600">👥 {unit.team}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setOrigin(unit.id)}
+                          className="border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
+                        >
+                          <LocateFixed className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="history" className="mt-0 space-y-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Save className="h-5 w-5 text-blue-500" />
+                <h3 className="font-semibold text-gray-800">Saved Routes</h3>
+              </div>
+              {savedRoutes.length > 0 ? (
+                <div className="space-y-3">
+                  {savedRoutes.map((route, index) => (
+                    <Card key={index} className="hover:shadow-md transition-shadow duration-200">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-2">{route.name}</h4>
+                            <div className="space-y-1">
+                              <p className="text-sm text-gray-600">🏁 From: {route.origin}</p>
+                              <p className="text-sm text-gray-600">🎯 To: {route.destination}</p>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleLoadRoute(index)}
+                            className="border-blue-500 text-blue-600 hover:bg-blue-500 hover:text-white"
+                          >
+                            <ArrowRightCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="border-2 border-dashed border-gray-300">
+                  <CardContent className="p-8 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Save className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h4 className="font-semibold text-gray-600 mb-2">No saved routes yet</h4>
+                    <p className="text-sm text-gray-500">Save your frequently used routes for quick access</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Activity className="h-5 w-5 text-purple-500" />
+                <h3 className="font-semibold text-gray-800">Recent Searches</h3>
+              </div>
+              <div className="space-y-3">
+                <Card className="hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 mb-1">{currentDateTime}</p>
+                        <h4 className="font-semibold text-gray-900 mb-1">AIIMS Delhi to Accident Site</h4>
+                        <p className="text-sm text-gray-600">⏱️ 15 mins • 📏 8.2 km</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setOrigin('AIIMS Delhi');
+                          setDestination('Accident Site - Delhi Highway');
+                        }}
+                        className="border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white"
                       >
                         <ArrowRightCircle className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center p-4 border border-dashed rounded-md">
-                <p className="text-sm text-gray-500">No saved routes yet</p>
-                <p className="text-xs text-gray-400 mt-1">Save your frequently used routes for quick access</p>
-              </div>
-            )}
-          </div>
-          
-          <div>
-            <h3 className="font-medium text-sm text-gray-600 mb-2">Recent Searches</h3>
-            <div className="space-y-2">
-              <div className="p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-xs text-gray-500">{currentDateTime}</p>
-                    <p className="font-medium text-sm">AIIMS Delhi to Accident Site</p>
-                    <p className="text-xs text-gray-500">15 mins • 8.2 km</p>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      setOrigin('AIIMS Delhi');
-                      setDestination('Accident Site - Delhi Highway');
-                    }}
-                  >
-                    <ArrowRightCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="p-2.5 border border-gray-100 rounded-md hover:bg-gray-50">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-xs text-gray-500">{currentDateTime}</p>
-                    <p className="font-medium text-sm">Apollo Hospitals to Medical Emergency</p>
-                    <p className="text-xs text-gray-500">22 mins • 12.5 km</p>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      setOrigin('Apollo Hospitals');
-                      setDestination('Medical Emergency - Mumbai Suburb');
-                    }}
-                  >
-                    <ArrowRightCircle className="h-4 w-4" />
-                  </Button>
-                </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500 mb-1">{currentDateTime}</p>
+                        <h4 className="font-semibold text-gray-900 mb-1">Apollo Hospitals to Medical Emergency</h4>
+                        <p className="text-sm text-gray-600">⏱️ 22 mins • 📏 12.5 km</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setOrigin('Apollo Hospitals');
+                          setDestination('Medical Emergency - Mumbai Suburb');
+                        }}
+                        className="border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white"
+                      >
+                        <ArrowRightCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
+        </div>
       </Tabs>
     </Card>
   );
