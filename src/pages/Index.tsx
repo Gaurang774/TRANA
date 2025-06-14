@@ -1,55 +1,25 @@
+
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import StatCard from '@/components/dashboard/StatCard';
 import HospitalBeds from '@/components/dashboard/HospitalBeds';
 import EmergencyMap from '@/components/dashboard/EmergencyMap';
 import ActiveEmergencies from '@/components/dashboard/ActiveEmergencies';
-import AmbulanceStatus from '@/components/dashboard/AmbulanceStatus';
 import TranaAssistant from '@/components/assistant/TranaAssistant';
 import { useTranaAssistant } from '@/hooks/useTranaAssistant';
-import { supabase } from '@/integrations/supabase/client';
+import { QuickEmergencyForm } from '@/components/enhanced/QuickEmergencyForm';
+import { EnhancedAmbulanceStatus } from '@/components/enhanced/EnhancedAmbulanceStatus';
+import { useEmergencies, useAmbulances, useHospitalBeds } from '@/hooks/useSupabaseQuery';
 import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity } from 'lucide-react';
 
 const Index = () => {
   // TRANA Assistant integration
   const { isMinimized, toggleMinimize, context } = useTranaAssistant();
 
-  // Fetch real-time dashboard data
-  const { data: emergencies } = useQuery({
-    queryKey: ['emergencies'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('emergencies')
-        .select('*')
-        .neq('status', 'completed')
-        .neq('status', 'cancelled');
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  const { data: ambulances } = useQuery({
-    queryKey: ['ambulances'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('ambulances')
-        .select('*');
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  const { data: hospitalBeds } = useQuery({
-    queryKey: ['hospital_beds'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hospital_beds')
-        .select('*');
-      if (error) throw error;
-      return data;
-    }
-  });
+  // Fetch real-time dashboard data using enhanced hooks
+  const { data: emergencies } = useEmergencies();
+  const { data: ambulances } = useAmbulances();
+  const { data: hospitalBeds } = useHospitalBeds();
 
   // Calculate statistics
   const activeEmergenciesCount = emergencies?.length || 0;
@@ -71,10 +41,15 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-xl flex items-center shadow-lg hover:shadow-xl transition-all duration-300">
-            <Activity className="h-5 w-5 text-emerald-500 mr-3" />
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">System Active</span>
-            <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full ml-3 animate-pulse shadow-sm"></div>
+          <div className="flex items-center space-x-4">
+            {/* Quick Emergency Report Button */}
+            <QuickEmergencyForm />
+            
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-xl flex items-center shadow-lg hover:shadow-xl transition-all duration-300">
+              <Activity className="h-5 w-5 text-emerald-500 mr-3" />
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">System Active</span>
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full ml-3 animate-pulse shadow-sm"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -123,7 +98,7 @@ const Index = () => {
       {/* Enhanced Active Emergencies and Ambulances Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         <ActiveEmergencies />
-        <AmbulanceStatus />
+        <EnhancedAmbulanceStatus />
       </div>
       
       {/* TRANA Assistant Integration */}
