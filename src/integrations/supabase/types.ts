@@ -799,31 +799,49 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           created_at: string
+          date_of_birth: string | null
           department: string | null
+          email: string | null
           first_name: string | null
           id: string
+          is_active: boolean | null
           last_name: string | null
+          license_number: string | null
+          phone: string | null
           role: string
           specialty: string | null
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
+          email?: string | null
           first_name?: string | null
           id: string
+          is_active?: boolean | null
           last_name?: string | null
-          role: string
+          license_number?: string | null
+          phone?: string | null
+          role?: string
           specialty?: string | null
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
+          email?: string | null
           first_name?: string | null
           id?: string
+          is_active?: boolean | null
           last_name?: string | null
+          license_number?: string | null
+          phone?: string | null
           role?: string
           specialty?: string | null
           updated_at?: string
