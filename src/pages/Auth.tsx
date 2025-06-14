@@ -8,23 +8,26 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Heart } from 'lucide-react';
+import { Loader2, Heart, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const signInSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters')
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters').min(1, 'Password is required')
 });
 
 const signUpSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Please enter a valid email address').min(1, 'Email is required'),
+  password: z.string()
+    .min(6, 'Password must be at least 6 characters')
+    .regex(/^(?=.*[a-zA-Z])(?=.*\d)/, 'Password must contain at least one letter and one number'),
   confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
   role: z.enum(['patient', 'doctor', 'admin', 'nurse', 'dispatcher', 'paramedic'])
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -36,7 +39,9 @@ type SignUpForm = z.infer<typeof signUpSchema>;
 
 const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { signIn, signUp, user, profile } = useAuth();
   const navigate = useNavigate();
 
   const signInForm = useForm<SignInForm>({
@@ -59,35 +64,70 @@ const Auth: React.FC = () => {
     }
   });
 
-  // Redirect if already authenticated
+  // Redirect authenticated users based on role
   useEffect(() => {
-    if (user) {
-      navigate('/');
+    if (user && profile) {
+      // Role-based redirection
+      switch (profile.role) {
+        case 'admin':
+          navigate('/');
+          break;
+        case 'doctor':
+        case 'nurse':
+          navigate('/appointments');
+          break;
+        case 'dispatcher':
+        case 'paramedic':
+          navigate('/emergency');
+          break;
+        case 'patient':
+        default:
+          navigate('/');
+          break;
+      }
     }
-  }, [user, navigate]);
+  }, [user, profile, navigate]);
 
   const handleSignIn = async (data: SignInForm) => {
     setLoading(true);
-    const { error } = await signIn(data.email, data.password);
-    if (!error) {
-      navigate('/');
-    }
+    const { error, success } = await signIn(data.email, data.password);
     setLoading(false);
+    
+    if (success) {
+      // Navigation is handled in useEffect above
+    }
   };
 
   const handleSignUp = async (data: SignUpForm) => {
     setLoading(true);
-    const { error } = await signUp(data.email, data.password, {
+    const { error, success } = await signUp(data.email, data.password, {
       first_name: data.firstName,
       last_name: data.lastName,
       role: data.role
     });
     setLoading(false);
+    
+    if (success) {
+      // Reset form on successful signup
+      signUpForm.reset();
+    }
+  };
+
+  const getRoleDescription = (role: string) => {
+    const descriptions = {
+      patient: 'Book appointments and access medical records',
+      doctor: 'Manage appointments and patient care',
+      nurse: 'Assist with patient care and coordination',
+      dispatcher: 'Coordinate emergency responses',
+      paramedic: 'Handle emergency medical services',
+      admin: 'Full system administration access'
+    };
+    return descriptions[role as keyof typeof descriptions] || '';
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center mb-4">
             <Heart className="h-8 w-8 text-red-500 mr-2" />
@@ -103,7 +143,7 @@ const Auth: React.FC = () => {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="signin">
+            <TabsContent value="signin" className="space-y-4">
               <Form {...signInForm}>
                 <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
                   <FormField
@@ -113,7 +153,12 @@ const Auth: React.FC = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="Enter your email" {...field} />
+                          <Input 
+                            type="email" 
+                            placeholder="Enter your email" 
+                            autoComplete="email"
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -127,7 +172,27 @@ const Auth: React.FC = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter your password" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"} 
+                              placeholder="Enter your password"
+                              autoComplete="current-password"
+                              {...field} 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -136,13 +201,13 @@ const Auth: React.FC = () => {
                   
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign In
+                    {loading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </form>
               </Form>
             </TabsContent>
             
-            <TabsContent value="signup">
+            <TabsContent value="signup" className="space-y-4">
               <Form {...signUpForm}>
                 <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -153,7 +218,11 @@ const Auth: React.FC = () => {
                         <FormItem>
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="First name" {...field} />
+                            <Input 
+                              placeholder="First name" 
+                              autoComplete="given-name"
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -167,7 +236,11 @@ const Auth: React.FC = () => {
                         <FormItem>
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Last name" {...field} />
+                            <Input 
+                              placeholder="Last name" 
+                              autoComplete="family-name"
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -182,7 +255,12 @@ const Auth: React.FC = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="Enter your email" {...field} />
+                          <Input 
+                            type="email" 
+                            placeholder="Enter your email" 
+                            autoComplete="email"
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -210,6 +288,11 @@ const Auth: React.FC = () => {
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
+                        {field.value && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {getRoleDescription(field.value)}
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -222,7 +305,27 @@ const Auth: React.FC = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter your password" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showPassword ? "text" : "password"} 
+                              placeholder="Enter your password"
+                              autoComplete="new-password"
+                              {...field} 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -236,16 +339,43 @@ const Auth: React.FC = () => {
                       <FormItem>
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Confirm your password" {...field} />
+                          <div className="relative">
+                            <Input 
+                              type={showConfirmPassword ? "text" : "password"} 
+                              placeholder="Confirm your password"
+                              autoComplete="new-password"
+                              {...field} 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            >
+                              {showConfirmPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Password must be at least 6 characters and contain both letters and numbers.
+                    </AlertDescription>
+                  </Alert>
                   
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign Up
+                    {loading ? 'Creating Account...' : 'Sign Up'}
                   </Button>
                 </form>
               </Form>
