@@ -3,24 +3,34 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface ExportOptions {
+export interface ExportOptions {
   format: 'csv' | 'json';
-  table: string;
   includeDeleted?: boolean;
+  dateRange?: {
+    start: string;
+    end: string;
+  };
 }
 
 export const useDataExport = () => {
   const [isExporting, setIsExporting] = useState(false);
 
-  const exportData = async (options: ExportOptions) => {
+  const exportData = async (table: string, options: ExportOptions) => {
     setIsExporting(true);
     
     try {
-      let query = supabase.from(options.table).select('*');
+      let query = supabase.from(table as any).select('*');
       
       // Filter out deleted records unless specifically requested
       if (!options.includeDeleted) {
         query = query.neq('is_deleted', true);
+      }
+
+      // Apply date range filter for emergencies
+      if (options.dateRange && table === 'emergencies') {
+        query = query
+          .gte('created_at', options.dateRange.start)
+          .lte('created_at', options.dateRange.end);
       }
       
       const { data, error } = await query;
@@ -34,7 +44,7 @@ export const useDataExport = () => {
         return;
       }
       
-      const filename = `${options.table}_export_${new Date().toISOString().split('T')[0]}`;
+      const filename = `${table}_export_${new Date().toISOString().split('T')[0]}`;
       
       if (options.format === 'csv') {
         exportToCSV(data, filename);
@@ -49,6 +59,18 @@ export const useDataExport = () => {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const exportEmergencies = async (options: ExportOptions) => {
+    return exportData('emergencies', options);
+  };
+
+  const exportAmbulances = async (options: ExportOptions) => {
+    return exportData('ambulances', options);
+  };
+
+  const exportHospitalBeds = async (options: ExportOptions) => {
+    return exportData('hospital_beds', options);
   };
 
   const exportToCSV = (data: any[], filename: string) => {
@@ -91,6 +113,9 @@ export const useDataExport = () => {
 
   return {
     exportData,
+    exportEmergencies,
+    exportAmbulances,
+    exportHospitalBeds,
     isExporting
   };
 };

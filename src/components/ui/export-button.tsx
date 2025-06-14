@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, Calendar, Filter } from 'lucide-react';
-import { useDataExport, ExportOptions } from '@/hooks/useDataExport';
+import { Download, Calendar } from 'lucide-react';
+import { useDataExport, type ExportOptions } from '@/hooks/useDataExport';
 
 interface ExportButtonProps {
   dataType: 'emergencies' | 'ambulances' | 'hospital_beds';
@@ -78,7 +78,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
                 <Label>Export Format</Label>
                 <Select 
                   value={exportOptions.format} 
-                  onValueChange={(value: 'csv' | 'pdf') => 
+                  onValueChange={(value: 'csv' | 'json') => 
                     setExportOptions({ ...exportOptions, format: value })
                   }
                 >
@@ -87,7 +87,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="csv">CSV (Excel compatible)</SelectItem>
-                    <SelectItem value="pdf">PDF Report</SelectItem>
+                    <SelectItem value="json">JSON</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
