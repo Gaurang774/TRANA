@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import BedManagement from "./pages/BedManagement";
 import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
+import Auth from "./pages/Auth";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import { useEffect } from "react";
 
 // Create a component to handle redirects from auth routes
@@ -21,10 +23,10 @@ const RedirectHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Redirect auth-related routes to homepage
+    // Redirect auth-related routes to auth page
     const currentPath = window.location.pathname;
-    if (currentPath === '/auth' || currentPath === '/login' || currentPath === '/register' || currentPath === '/signup') {
-      navigate('/');
+    if (currentPath === '/login' || currentPath === '/register' || currentPath === '/signup') {
+      navigate('/auth');
     }
     
     // Check if we have a navigate state in sessionStorage
@@ -49,19 +51,51 @@ const App = () => (
         <BrowserRouter>
           <RedirectHandler />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/emergency" element={<Emergency />} />
-            <Route path="/medicines" element={<Medicines />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/beds" element={<BedManagement />} />
-            <Route path="/routes" element={<RoutePlanning />} />
-            <Route path="/reports" element={<Reports />} />
-            {/* Redirect auth routes to homepage */}
-            <Route path="/auth" element={<Index />} />
-            <Route path="/login" element={<Index />} />
-            <Route path="/register" element={<Index />} />
-            <Route path="/signup" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/emergency" element={
+              <ProtectedRoute>
+                <Emergency />
+              </ProtectedRoute>
+            } />
+            <Route path="/medicines" element={
+              <ProtectedRoute>
+                <Medicines />
+              </ProtectedRoute>
+            } />
+            <Route path="/appointments" element={
+              <ProtectedRoute>
+                <Appointments />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/beds" element={
+              <ProtectedRoute>
+                <BedManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/routes" element={
+              <ProtectedRoute>
+                <RoutePlanning />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            } />
+            {/* Redirect legacy auth routes to new auth page */}
+            <Route path="/login" element={<Auth />} />
+            <Route path="/register" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

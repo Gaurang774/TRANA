@@ -1,11 +1,18 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart } from 'lucide-react';
+import { Heart, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navigation: React.FC = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   return (
     <nav className="border-b bg-white sticky top-0 z-50 shadow-sm">
@@ -17,7 +24,33 @@ export const Navigation: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">Public Access Mode</span>
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">
+                  Welcome, {user.email}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="text-sm text-gray-600">Public Access Mode</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/auth')}
+                >
+                  Sign In
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
