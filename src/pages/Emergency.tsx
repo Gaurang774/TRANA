@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
@@ -124,8 +123,7 @@ const Emergency = () => {
   
   const assignAmbulance = async (emergencyId: string) => {
     try {
-      // In a real app, you would find the closest available ambulance
-      // For now, just simulate assigning an ambulance
+      // Find the first available ambulance
       const { data: ambulances, error: fetchError } = await supabase
         .from('ambulances')
         .select('*')
@@ -141,32 +139,21 @@ const Emergency = () => {
       
       const ambulanceId = ambulances[0].id;
       
-      // Update the emergency with the assigned ambulance
-      const { error: updateError } = await supabase
-        .from('emergencies')
-        .update({ 
-          assigned_to: ambulanceId,
-          status: 'dispatched',
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', emergencyId);
+      // Use the new assign_ambulance function
+      const { data: result, error: assignError } = await supabase.rpc('assign_ambulance', {
+        p_emergency_id: emergencyId,
+        p_ambulance_id: ambulanceId,
+        p_dispatcher_id: null // For now, we don't have dispatcher authentication
+      });
       
-      if (updateError) throw updateError;
+      if (assignError) throw assignError;
       
-      // Update the ambulance status
-      const { error: ambulanceError } = await supabase
-        .from('ambulances')
-        .update({ 
-          status: 'dispatched',
-          assigned_emergency_id: emergencyId,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', ambulanceId);
-      
-      if (ambulanceError) throw ambulanceError;
-      
-      toast.success('Ambulance dispatched successfully');
-      refetch();
+      if (result) {
+        toast.success('Ambulance dispatched successfully');
+        refetch();
+      } else {
+        toast.error('Failed to assign ambulance');
+      }
       
     } catch (error: any) {
       toast.error(`Error dispatching ambulance: ${error.message}`);
