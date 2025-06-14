@@ -1,46 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 export type UserRole = 'admin' | 'doctor' | 'ambulance' | 'patient' | 'staff';
 
+// Mock user role hook for public access mode
 export const useUserRole = () => {
-  const { user } = useAuth();
-  const [role, setRole] = useState<UserRole | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<UserRole | null>('admin'); // Default to admin for full access
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!user) {
-        setRole(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user role:', error);
-          setRole(null);
-        } else {
-          setRole(data?.role as UserRole || null);
-        }
-      } catch (err) {
-        console.error('Unexpected error fetching role:', err);
-        setRole(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserRole();
-  }, [user]);
+    // In public mode, grant admin role for full access
+    setRole('admin');
+    setLoading(false);
+  }, []);
 
   return { role, loading };
 };
