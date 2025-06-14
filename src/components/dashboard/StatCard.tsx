@@ -1,6 +1,7 @@
 
 import { cn } from '@/lib/utils';
 import React from 'react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
@@ -15,36 +16,50 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, icon, trend, color = 'blue' }: StatCardProps) => {
   const colorVariants = {
-    blue: 'bg-medical-blue text-white',
-    green: 'bg-medical-green text-white',
-    red: 'bg-medical-red text-white',
-    yellow: 'bg-medical-yellow text-gray-900',
+    blue: 'bg-blue-50 text-blue-600 border-blue-100',
+    green: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    red: 'bg-red-50 text-red-600 border-red-100',
+    yellow: 'bg-amber-50 text-amber-600 border-amber-100',
+  };
+
+  const iconBgVariants = {
+    blue: 'bg-blue-500',
+    green: 'bg-emerald-500',
+    red: 'bg-red-500',
+    yellow: 'bg-amber-500',
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-5">
+    <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold mt-1">{value}</h3>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-500 mb-2">{title}</p>
+          <h3 className="text-3xl font-light text-gray-900 mb-3">{value}</h3>
           
           {trend && (
-            <div className="flex items-center mt-2">
+            <div className="flex items-center">
+              {trend.isPositive ? (
+                <TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+              )}
               <span
                 className={cn(
-                  "text-xs",
-                  trend.isPositive ? 'text-medical-green' : 'text-medical-red'
+                  "text-sm font-medium",
+                  trend.isPositive ? 'text-emerald-600' : 'text-red-600'
                 )}
               >
-                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+                {Math.abs(trend.value)}%
               </span>
-              <span className="text-xs text-gray-400 ml-1">vs last month</span>
+              <span className="text-sm text-gray-400 ml-1">vs last period</span>
             </div>
           )}
         </div>
         
-        <div className={cn('p-2 rounded-md', colorVariants[color])}>
-          {icon}
+        <div className={cn('p-3 rounded-xl', iconBgVariants[color])}>
+          <div className="text-white">
+            {icon}
+          </div>
         </div>
       </div>
     </div>
