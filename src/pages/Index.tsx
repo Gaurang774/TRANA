@@ -18,7 +18,8 @@ const Index = () => {
       const { data, error } = await supabase
         .from('emergencies')
         .select('*')
-        .neq('status', 'completed');
+        .neq('status', 'completed')
+        .neq('status', 'cancelled');
       if (error) throw error;
       return data;
     }

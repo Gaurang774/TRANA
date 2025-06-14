@@ -17,6 +17,12 @@ interface Emergency {
   priority: 'low' | 'medium' | 'high' | 'critical';
   assigned_to: string | null;
   notes: string | null;
+  emergency_number: string | null;
+  description: string | null;
+  caller_name: string | null;
+  caller_phone: string | null;
+  responding_unit: string | null;
+  eta_minutes: number | null;
 }
 
 const statusColors = {
@@ -120,7 +126,7 @@ const ActiveEmergencies = () => {
                     <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="font-medium text-sm lg:text-base">{emergency.type}</h3>
                       <Badge variant="secondary" className="text-xs">
-                        {emergency.id.slice(0, 8)}
+                        {emergency.emergency_number || emergency.id.slice(0, 8)}
                       </Badge>
                     </div>
                     <div className="flex items-center text-xs lg:text-sm text-gray-500 mb-1">
@@ -147,9 +153,9 @@ const ActiveEmergencies = () => {
                 </div>
               </div>
               
-              {emergency.notes && (
+              {(emergency.notes || emergency.description) && (
                 <div className="mt-2 text-xs lg:text-sm text-gray-600 pl-11 lg:pl-14">
-                  {emergency.notes}
+                  {emergency.description || emergency.notes}
                 </div>
               )}
               

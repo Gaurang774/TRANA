@@ -15,6 +15,9 @@ interface AmbulanceData {
   current_location: any;
   crew_members: any;
   assigned_emergency_id: string | null;
+  equipment_status: any;
+  fuel_level: number | null;
+  mileage: number | null;
 }
 
 const statusColors = {
@@ -99,7 +102,7 @@ const AmbulanceStatus = () => {
         {ambulances && ambulances.length > 0 ? (
           ambulances.map((ambulance) => {
             const location = ambulance.current_location?.address || 'Location Unknown';
-            const crewCount = ambulance.crew_members?.length || 0;
+            const crewCount = ambulance.crew_members ? Object.keys(ambulance.crew_members).length : 0;
             
             return (
               <div 
@@ -144,7 +147,7 @@ const AmbulanceStatus = () => {
                   <div className="flex items-center">
                     <Battery className="h-4 w-4 mr-1 text-medical-green" />
                     <span className="text-xs font-medium text-medical-green">
-                      85%
+                      {ambulance.fuel_level || 85}%
                     </span>
                   </div>
                   
