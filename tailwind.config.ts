@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -75,15 +74,15 @@ export default {
 					rose: '#e11d48',
 					indigo: '#4f46e5',
 					violet: '#8b5cf6',
-					// Changed yellow to a warmer, more medical-appropriate amber
-					yellow: '#f59e0b',
-					'yellow-darker': '#d97706',
+					// Changed yellow to orange for better medical UI consistency
+					yellow: '#ea580c',
+					'yellow-darker': '#c2410c',
 					// New colors added
 					teal: '#0d9488',
 					pink: '#ec4899',
 					lime: '#65a30d',
 					sky: '#0284c7',
-					amber: '#f59e0b',
+					amber: '#ea580c',
 					slate: '#475569',
 					zinc: '#71717a',
 					stone: '#78716c'
@@ -105,7 +104,7 @@ export default {
 				brand: {
 					primary: '#2563eb',
 					secondary: '#059669',
-					accent: '#f59e0b',
+					accent: '#ea580c',
 					danger: '#dc2626',
 					warning: '#ea580c',
 					info: '#0891b2',
