@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import EmergencyHeader from '@/components/EmergencyHeader';
+import EnhancedHeader from '@/components/EnhancedHeader';
 import EmergencySidebar from '@/components/EmergencySidebar';
 
 interface LayoutProps {
@@ -24,7 +24,7 @@ const Layout = ({ children }: LayoutProps) => {
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-64">
-        <EmergencyHeader toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <EnhancedHeader toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
         <main className="flex-1 p-6 md:p-8 lg:p-10 overflow-y-auto">
           <div className="max-w-7xl mx-auto">

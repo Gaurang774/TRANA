@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import BedManagement from "./pages/BedManagement";
 import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
+import PluginManagement from "./pages/PluginManagement";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/beds" element={<BedManagement />} />
             <Route path="/routes" element={<RoutePlanning />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/plugins" element={<PluginManagement />} />
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
