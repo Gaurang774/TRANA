@@ -108,7 +108,7 @@ const RoutePlanning = () => {
         </div>
         
         <div className="lg:col-span-1">
-          <RoutePlanningForm onRouteCalculate={handleRouteCalculate} />
+          <RoutePlanningForm />
         </div>
       </div>
     </Layout>
