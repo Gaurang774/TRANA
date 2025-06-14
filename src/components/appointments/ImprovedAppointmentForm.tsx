@@ -109,21 +109,20 @@ const ImprovedAppointmentForm = ({ onClose }: ImprovedAppointmentFormProps) => {
         }
       }
 
-      const { error } = await supabase
-        .from('appointments')
-        .insert([{
-          patient_name: data.patient_name.trim(),
-          patient_phone: data.patient_phone?.trim() || null,
-          patient_email: data.patient_email?.trim() || null,
-          doctor_id: data.doctor_id || null,
-          department: data.department,
-          appointment_date: data.appointment_date,
-          appointment_time: data.appointment_time,
-          notes: data.notes?.trim() || null,
-          status: 'scheduled'
-        }]);
+      // Use the new book_appointment function
+      const { data: appointmentId, error } = await supabase.rpc('book_appointment', {
+        p_patient_name: data.patient_name.trim(),
+        p_department: data.department,
+        p_appointment_date: data.appointment_date,
+        p_appointment_time: data.appointment_time,
+        p_patient_phone: data.patient_phone?.trim() || null,
+        p_patient_email: data.patient_email?.trim() || null,
+        p_doctor_id: data.doctor_id || null,
+        p_notes: data.notes?.trim() || null
+      });
 
       if (error) throw error;
+      return appointmentId;
     },
     onSuccess: () => {
       toast({

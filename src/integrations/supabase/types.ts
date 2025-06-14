@@ -1017,15 +1017,26 @@ export type Database = {
         Returns: boolean
       }
       book_appointment: {
-        Args: {
-          p_patient_id: string
-          p_doctor_id: string
-          p_hospital_id: string
-          p_department_id: string
-          p_appointment_date: string
-          p_appointment_time: string
-          p_symptoms?: string
-        }
+        Args:
+          | {
+              p_patient_id: string
+              p_doctor_id: string
+              p_hospital_id: string
+              p_department_id: string
+              p_appointment_date: string
+              p_appointment_time: string
+              p_symptoms?: string
+            }
+          | {
+              p_patient_name: string
+              p_department: string
+              p_appointment_date: string
+              p_appointment_time: string
+              p_patient_phone?: string
+              p_patient_email?: string
+              p_doctor_id?: string
+              p_notes?: string
+            }
         Returns: string
       }
       get_user_role: {
