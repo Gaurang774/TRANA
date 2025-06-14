@@ -74,7 +74,19 @@ export default {
 					emerald: '#10b981',
 					rose: '#e11d48',
 					indigo: '#4f46e5',
-					violet: '#8b5cf6'
+					violet: '#8b5cf6',
+					// Changed yellow to a warmer, more medical-appropriate amber
+					yellow: '#f59e0b',
+					'yellow-darker': '#d97706',
+					// New colors added
+					teal: '#0d9488',
+					pink: '#ec4899',
+					lime: '#65a30d',
+					sky: '#0284c7',
+					amber: '#f59e0b',
+					slate: '#475569',
+					zinc: '#71717a',
+					stone: '#78716c'
 				},
 				neutral: {
 					50: '#fafafa',
@@ -88,6 +100,16 @@ export default {
 					800: '#262626',
 					900: '#171717',
 					950: '#0a0a0a'
+				},
+				// Additional color palette for more flexibility
+				brand: {
+					primary: '#2563eb',
+					secondary: '#059669',
+					accent: '#f59e0b',
+					danger: '#dc2626',
+					warning: '#ea580c',
+					info: '#0891b2',
+					success: '#10b981'
 				}
 			},
 			borderRadius: {
