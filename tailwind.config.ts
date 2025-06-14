@@ -74,9 +74,6 @@ export default {
 					rose: '#e11d48',
 					indigo: '#4f46e5',
 					violet: '#8b5cf6',
-					// Changed yellow to orange for better medical UI consistency
-					yellow: '#ea580c',
-					'yellow-darker': '#c2410c',
 					// New colors added
 					teal: '#0d9488',
 					pink: '#ec4899',
