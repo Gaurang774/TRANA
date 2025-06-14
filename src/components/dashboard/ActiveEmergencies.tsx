@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AlertCircle, Clock, MapPin, Edit, Trash2 } from 'lucide-react';
+import { AlertCircle, Clock, MapPin, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -100,7 +100,7 @@ const ActiveEmergencies = () => {
       <div className="p-3 lg:p-4 border-b flex flex-col lg:flex-row lg:justify-between lg:items-center">
         <div className="mb-2 lg:mb-0">
           <h2 className="font-semibold text-lg">Active Emergencies</h2>
-          <p className="text-sm text-gray-500">Ongoing emergency responses</p>
+          <p className="text-sm text-gray-500">Ongoing emergency responses with AI-powered triage</p>
         </div>
         <Button variant="outline" size="sm" className="self-start lg:self-auto">
           View All
@@ -128,6 +128,12 @@ const ActiveEmergencies = () => {
                       <Badge variant="secondary" className="text-xs">
                         {emergency.emergency_number || emergency.id.slice(0, 8)}
                       </Badge>
+                      {emergency.notes && emergency.notes.includes('AI Triage Assessment') && (
+                        <Badge variant="outline" className="text-xs flex items-center">
+                          <Brain className="h-3 w-3 mr-1" />
+                          AI Assessed
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center text-xs lg:text-sm text-gray-500 mb-1">
                       <MapPin className="h-3 lg:h-3.5 w-3 lg:w-3.5 mr-1 flex-shrink-0" />

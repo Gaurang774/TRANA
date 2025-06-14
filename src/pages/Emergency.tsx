@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
+import TriagePrediction from '@/components/triage/TriagePrediction';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Ambulance, Bell, CheckCircle, Clock, MapPin, Plus } from 'lucide-react';
+import { AlertCircle, Ambulance, Bell, CheckCircle, Clock, MapPin, Plus, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -35,6 +36,7 @@ type EmergencyFormData = {
 const Emergency = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [isCreating, setIsCreating] = useState(false);
+  const [showTriagePrediction, setShowTriagePrediction] = useState(false);
   const [formData, setFormData] = useState<EmergencyFormData>({
     type: '',
     location: '',
@@ -274,6 +276,26 @@ const Emergency = () => {
     );
   };
   
+  const handleTriageResult = (result: any) => {
+    // Map AI triage levels to our emergency priority levels
+    const priorityMapping = {
+      'critical': 'critical',
+      'high': 'high', 
+      'medium': 'medium',
+      'low': 'low'
+    };
+    
+    setFormData(prev => ({
+      ...prev,
+      priority: priorityMapping[result.triageLevel] || 'medium',
+      notes: prev.notes + (prev.notes ? '\n\n' : '') + 
+        `AI Triage Assessment (${Math.round(result.confidence * 100)}% confidence): ${result.reasoning}`
+    }));
+    
+    setShowTriagePrediction(false);
+    toast.success(`Triage level set to ${result.triageLevel} priority based on AI assessment`);
+  };
+  
   return (
     <Layout>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
@@ -281,18 +303,37 @@ const Emergency = () => {
           <h1 className="text-2xl font-bold">Emergency Management</h1>
           <p className="text-gray-500">Handle critical situations efficiently</p>
         </div>
-        <Button 
-          className="mt-4 md:mt-0 flex items-center"
-          onClick={() => setIsCreating(!isCreating)}
-        >
-          {isCreating ? 'Cancel' : (
-            <>
-              <Plus className="mr-1 h-4 w-4" />
-              Report Emergency
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2 mt-4 md:mt-0">
+          <Button 
+            variant="outline"
+            onClick={() => setShowTriagePrediction(!showTriagePrediction)}
+            className="flex items-center"
+          >
+            <Brain className="mr-1 h-4 w-4" />
+            AI Triage Assistant
+          </Button>
+          <Button 
+            onClick={() => setIsCreating(!isCreating)}
+            className="flex items-center"
+          >
+            {isCreating ? 'Cancel' : (
+              <>
+                <Plus className="mr-1 h-4 w-4" />
+                Report Emergency
+              </>
+            )}
+          </Button>
+        </div>
       </div>
+      
+      {showTriagePrediction && (
+        <div className="mb-6">
+          <TriagePrediction 
+            onTriageResult={handleTriageResult}
+            initialSymptoms={formData.notes}
+          />
+        </div>
+      )}
       
       {isCreating && (
         <Card className="mb-6">
@@ -333,6 +374,16 @@ const Emergency = () => {
               <div>
                 <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
                   Priority Level
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowTriagePrediction(true)}
+                    className="ml-2 h-6 text-xs"
+                  >
+                    <Brain className="h-3 w-3 mr-1" />
+                    Use AI
+                  </Button>
                 </label>
                 <Select 
                   name="priority" 
@@ -353,15 +404,15 @@ const Emergency = () => {
               
               <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  Additional Notes
+                  Additional Notes / Symptoms
                 </label>
                 <Textarea
                   id="notes"
                   name="notes"
-                  placeholder="Provide any additional details about the emergency"
+                  placeholder="Provide any additional details about the emergency, symptoms, or patient condition"
                   value={formData.notes || ''}
                   onChange={handleInputChange}
-                  rows={3}
+                  rows={4}
                 />
               </div>
               
