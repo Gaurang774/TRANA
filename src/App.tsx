@@ -16,11 +16,17 @@ import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
 import { useEffect } from "react";
 
-// Create a component to handle redirects from wrong urls
+// Create a component to handle redirects from auth routes
 const RedirectHandler = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    // Redirect auth-related routes to homepage
+    const currentPath = window.location.pathname;
+    if (currentPath === '/auth' || currentPath === '/login' || currentPath === '/register' || currentPath === '/signup') {
+      navigate('/');
+    }
+    
     // Check if we have a navigate state in sessionStorage
     const redirectPath = sessionStorage.getItem('redirectTo');
     if (redirectPath) {
@@ -51,6 +57,11 @@ const App = () => (
             <Route path="/beds" element={<BedManagement />} />
             <Route path="/routes" element={<RoutePlanning />} />
             <Route path="/reports" element={<Reports />} />
+            {/* Redirect auth routes to homepage */}
+            <Route path="/auth" element={<Index />} />
+            <Route path="/login" element={<Index />} />
+            <Route path="/register" element={<Index />} />
+            <Route path="/signup" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -6,14 +6,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Clock, User, Plus, AlertCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import ImprovedAppointmentForm from '@/components/appointments/ImprovedAppointmentForm';
 import AppointmentsList from '@/components/appointments/AppointmentsList';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Appointments = () => {
   const [showForm, setShowForm] = useState(false);
-  const { profile } = useAuth();
 
   // Fetch appointments with proper error handling
   const { data: appointments, isLoading, error, refetch } = useQuery({
@@ -38,9 +36,6 @@ const Appointments = () => {
     retry: 2,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
-
-  // Check if user can create appointments
-  const canCreateAppointments = profile && ['admin', 'doctor', 'nurse', 'dispatcher'].includes(profile.role);
 
   // Get appointment statistics with null safety
   const getAppointmentStats = () => {
@@ -93,26 +88,15 @@ const Appointments = () => {
             <h1 className="text-2xl font-bold">Appointments</h1>
             <p className="text-gray-500">Manage patient appointments and scheduling</p>
           </div>
-          {canCreateAppointments && (
-            <Button 
-              onClick={() => setShowForm(true)}
-              className="mt-4 md:mt-0"
-              disabled={showForm}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Appointment
-            </Button>
-          )}
+          <Button 
+            onClick={() => setShowForm(true)}
+            className="mt-4 md:mt-0"
+            disabled={showForm}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Appointment
+          </Button>
         </div>
-
-        {!canCreateAppointments && (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              You don't have permission to create appointments. Contact an administrator if you need access.
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
