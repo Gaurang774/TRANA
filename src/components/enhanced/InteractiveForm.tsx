@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useForm, FieldPath, Control } from 'react-hook-form';
+import { useForm, FieldPath, Control, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -76,7 +76,7 @@ export function InteractiveForm<T extends Record<string, any>>({
               {field.label} {field.required && '*'}
             </Label>
             <Select
-              onValueChange={(value) => setValue(field.name as FieldPath<T>, value)}
+              onValueChange={(value) => setValue(field.name as Path<T>, value as any)}
               disabled={field.disabled || isSubmitting}
             >
               <SelectTrigger className={hasError ? 'border-red-500' : ''}>
@@ -104,7 +104,7 @@ export function InteractiveForm<T extends Record<string, any>>({
             </Label>
             <Textarea
               id={field.name}
-              {...register(field.name as FieldPath<T>)}
+              {...register(field.name as Path<T>)}
               placeholder={field.placeholder}
               disabled={field.disabled || isSubmitting}
               className={cn(hasError ? 'border-red-500' : '', 'min-h-[80px]')}
@@ -120,7 +120,7 @@ export function InteractiveForm<T extends Record<string, any>>({
           <div key={field.name} className={cn('flex items-center space-x-2', field.className)}>
             <Checkbox
               id={field.name}
-              {...register(field.name as FieldPath<T>)}
+              {...register(field.name as Path<T>)}
               disabled={field.disabled || isSubmitting}
             />
             <Label
@@ -144,7 +144,7 @@ export function InteractiveForm<T extends Record<string, any>>({
             <Input
               id={field.name}
               type={field.type === 'input' ? 'text' : field.type}
-              {...register(field.name as FieldPath<T>)}
+              {...register(field.name as Path<T>)}
               placeholder={field.placeholder}
               disabled={field.disabled || isSubmitting}
               className={hasError ? 'border-red-500' : ''}

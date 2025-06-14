@@ -73,7 +73,10 @@ export function useSupabaseMutation<T, V = void>(
 export function useEmergencies(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['emergencies'],
-    () => supabase.from('emergencies').select('*').neq('status', 'completed'),
+    async () => {
+      const { data, error } = await supabase.from('emergencies').select('*').neq('status', 'completed');
+      return { data, error };
+    },
     options
   );
 }
@@ -81,7 +84,10 @@ export function useEmergencies(options: UseSupabaseQueryOptions = {}) {
 export function useAmbulances(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['ambulances'],
-    () => supabase.from('ambulances').select('*'),
+    async () => {
+      const { data, error } = await supabase.from('ambulances').select('*');
+      return { data, error };
+    },
     options
   );
 }
@@ -89,7 +95,10 @@ export function useAmbulances(options: UseSupabaseQueryOptions = {}) {
 export function useHospitalBeds(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['hospital_beds'],
-    () => supabase.from('hospital_beds').select('*'),
+    async () => {
+      const { data, error } = await supabase.from('hospital_beds').select('*');
+      return { data, error };
+    },
     options
   );
 }
@@ -97,7 +106,10 @@ export function useHospitalBeds(options: UseSupabaseQueryOptions = {}) {
 export function useMedicines(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['medicines'],
-    () => supabase.from('medicines').select('*').order('name'),
+    async () => {
+      const { data, error } = await supabase.from('medicines').select('*').order('name');
+      return { data, error };
+    },
     options
   );
 }
@@ -105,7 +117,10 @@ export function useMedicines(options: UseSupabaseQueryOptions = {}) {
 export function useAppointments(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['appointments'],
-    () => supabase.from('appointments').select('*').order('appointment_date', { ascending: false }),
+    async () => {
+      const { data, error } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: false });
+      return { data, error };
+    },
     options
   );
 }
@@ -113,39 +128,50 @@ export function useAppointments(options: UseSupabaseQueryOptions = {}) {
 // Mutation hooks
 export function useCreateEmergency() {
   return useSupabaseMutation(
-    (emergency: any) => supabase.from('emergencies').insert([emergency]).select().single(),
+    async (emergency: any) => {
+      const { data, error } = await supabase.from('emergencies').insert([emergency]).select().single();
+      return { data, error };
+    },
     { invalidateQueries: [['emergencies']] }
   );
 }
 
 export function useUpdateEmergency() {
   return useSupabaseMutation(
-    ({ id, updates }: { id: string; updates: any }) => 
-      supabase.from('emergencies').update(updates).eq('id', id).select().single(),
+    async ({ id, updates }: { id: string; updates: any }) => {
+      const { data, error } = await supabase.from('emergencies').update(updates).eq('id', id).select().single();
+      return { data, error };
+    },
     { invalidateQueries: [['emergencies']] }
   );
 }
 
 export function useCreateAppointment() {
   return useSupabaseMutation(
-    (appointment: any) => supabase.rpc('book_appointment', appointment),
+    async (appointment: any) => {
+      const { data, error } = await supabase.rpc('book_appointment', appointment);
+      return { data, error };
+    },
     { invalidateQueries: [['appointments']] }
   );
 }
 
 export function useUpdateAmbulanceLocation() {
   return useSupabaseMutation(
-    ({ ambulanceId, latitude, longitude, address }: { 
+    async ({ ambulanceId, latitude, longitude, address }: { 
       ambulanceId: string; 
       latitude: number; 
       longitude: number; 
       address?: string 
-    }) => supabase.rpc('update_ambulance_location', {
-      p_ambulance_id: ambulanceId,
-      p_latitude: latitude,
-      p_longitude: longitude,
-      p_address: address
-    }),
+    }) => {
+      const { data, error } = await supabase.rpc('update_ambulance_location', {
+        p_ambulance_id: ambulanceId,
+        p_latitude: latitude,
+        p_longitude: longitude,
+        p_address: address
+      });
+      return { data, error };
+    },
     { invalidateQueries: [['ambulances']] }
   );
 }

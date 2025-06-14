@@ -152,7 +152,7 @@ const Appointments = () => {
 
         {/* Appointments Table */}
         <DataTable
-          data={appointments || []}
+          data={Array.isArray(appointments) ? appointments : []}
           columns={columns}
           actions={actions}
           title="All Appointments"

@@ -21,11 +21,17 @@ const Index = () => {
   const { data: ambulances } = useAmbulances();
   const { data: hospitalBeds } = useHospitalBeds();
 
-  // Calculate statistics
-  const activeEmergenciesCount = emergencies?.length || 0;
-  const availableAmbulances = ambulances?.filter(a => a.status === 'available').length || 0;
-  const patientsInTransit = ambulances?.filter(a => a.status === 'en-route' || a.status === 'returning').length || 0;
-  const availableBeds = hospitalBeds?.filter(b => b.status === 'available').length || 0;
+  // Calculate statistics with proper type checking
+  const activeEmergenciesCount = Array.isArray(emergencies) ? emergencies.length : 0;
+  const availableAmbulances = Array.isArray(ambulances) 
+    ? ambulances.filter(a => a.status === 'available').length 
+    : 0;
+  const patientsInTransit = Array.isArray(ambulances) 
+    ? ambulances.filter(a => a.status === 'en-route' || a.status === 'returning').length 
+    : 0;
+  const availableBeds = Array.isArray(hospitalBeds) 
+    ? hospitalBeds.filter(b => b.status === 'available').length 
+    : 0;
 
   return (
     <Layout>

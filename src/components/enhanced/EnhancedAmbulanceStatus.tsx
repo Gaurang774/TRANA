@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { RealTimeData } from './RealTimeData';
 import { DataTable, TableColumn } from './DataTable';
 import { useAmbulances, useUpdateAmbulanceLocation } from '@/hooks/useSupabaseQuery';
+import { supabase } from '@/integrations/supabase/client';
 import { MapPin, Navigation, Fuel, Wrench } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -112,8 +113,8 @@ export function EnhancedAmbulanceStatus() {
       sortable: true,
       render: (value) => (
         <div className="flex items-center space-x-2">
-          <Fuel className={`h-4 w-4 ${value < 25 ? 'text-red-500' : 'text-green-500'}`} />
-          <span className={value < 25 ? 'text-red-600 font-medium' : ''}>{value}%</span>
+          <Fuel className={`h-4 w-4 ${(value || 0) < 25 ? 'text-red-500' : 'text-green-500'}`} />
+          <span className={(value || 0) < 25 ? 'text-red-600 font-medium' : ''}>{value || 85}%</span>
         </div>
       ),
     },
@@ -159,8 +160,8 @@ export function EnhancedAmbulanceStatus() {
         
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="flex items-center space-x-1">
-            <Fuel className={`h-3 w-3 ${ambulance.fuel_level! < 25 ? 'text-red-500' : 'text-green-500'}`} />
-            <span>Fuel: {ambulance.fuel_level}%</span>
+            <Fuel className={`h-3 w-3 ${(ambulance.fuel_level || 0) < 25 ? 'text-red-500' : 'text-green-500'}`} />
+            <span>Fuel: {ambulance.fuel_level || 85}%</span>
           </div>
           <div className="flex items-center space-x-1">
             <span>Crew: {ambulance.crew_size || 0}</span>
