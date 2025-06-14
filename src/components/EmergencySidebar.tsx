@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -9,7 +8,9 @@ import {
   Settings as SettingsIcon,
   Bed,
   Calendar,
-  Heart
+  Heart,
+  Pill,
+  Puzzle
 } from 'lucide-react';
 
 interface EmergencySidebarProps {
@@ -25,8 +26,10 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
     { path: '/', icon: <Home size={20} />, label: 'Dashboard' },
     { path: '/emergency', icon: <AlertTriangle size={20} />, label: 'Emergency' },
     { path: '/appointments', icon: <Calendar size={20} />, label: 'Appointments' },
+    { path: '/medicines', icon: <Pill size={20} />, label: 'Medicines' },
     { path: '/beds', icon: <Bed size={20} />, label: 'Bed Management' },
     { path: '/routes', icon: <Map size={20} />, label: 'Route Planning' },
+    { path: '/plugins', icon: <Puzzle size={20} />, label: 'Plugins' },
     { path: '/reports', icon: <FileText size={20} />, label: 'Reports' },
     { path: '/settings', icon: <SettingsIcon size={20} />, label: 'Settings' }
   ];
