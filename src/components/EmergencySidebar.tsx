@@ -19,7 +19,10 @@ import {
   Route,
   FileText,
   Puzzle,
-  BarChart3
+  BarChart3,
+  Heart,
+  Home,
+  Map
 } from 'lucide-react';
 
 interface EmergencySidebarProps {
@@ -37,10 +40,10 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
     { path: '/appointments', icon: <Calendar size={20} />, label: 'Appointments' },
     { path: '/medicines', icon: <Pill size={20} />, label: 'Medicines' },
     { path: '/beds', icon: <Bed size={20} />, label: 'Bed Management' },
-    { path: '/routes', icon: <Map size={20} />, label: 'Route Planning' },
+    { path: '/routes', icon: <Route size={20} />, label: 'Route Planning' },
     { path: '/plugins', icon: <Puzzle size={20} />, label: 'Plugins' },
     { path: '/reports', icon: <FileText size={20} />, label: 'Reports' },
-    { path: '/settings', icon: <SettingsIcon size={20} />, label: 'Settings' }
+    { path: '/settings', icon: <Settings size={20} />, label: 'Settings' }
   ];
 
   const isActive = (path: string) => location.pathname === path;
