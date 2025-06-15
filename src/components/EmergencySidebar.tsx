@@ -1,16 +1,25 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import { 
-  Home, 
+  LayoutDashboard, 
   AlertTriangle, 
-  Map, 
-  FileText, 
-  Settings as SettingsIcon,
+  Calendar, 
+  Pill, 
+  Settings, 
+  LogOut, 
+  X, 
+  Activity,
   Bed,
-  Calendar,
-  Heart,
-  Pill,
-  Puzzle
+  Route,
+  FileText,
+  Puzzle,
+  BarChart3
 } from 'lucide-react';
 
 interface EmergencySidebarProps {

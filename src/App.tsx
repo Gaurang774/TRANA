@@ -16,6 +16,7 @@ import BedManagement from "./pages/BedManagement";
 import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
 import PluginManagement from "./pages/PluginManagement";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/routes" element={<RoutePlanning />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/plugins" element={<PluginManagement />} />
+              <Route path="/analytics" element={<Analytics />} />
               {/* Catch-all route for 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>

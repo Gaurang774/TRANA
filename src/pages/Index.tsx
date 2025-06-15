@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import StatCard from '@/components/dashboard/StatCard';
 import HospitalBeds from '@/components/dashboard/HospitalBeds';
@@ -12,7 +13,8 @@ import { EnhancedAmbulanceStatus } from '@/components/enhanced/EnhancedAmbulance
 import { SystemAlerts } from '@/components/alerts/SystemAlerts';
 import { NotificationSystem } from '@/components/enhanced/NotificationSystem';
 import { useEmergencies, useAmbulances, useHospitalBeds } from '@/hooks/useSupabaseQuery';
-import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3 } from 'lucide-react';
 import { RoleBasedAccess } from '@/components/enhanced/RoleBasedAccess';
 
 const Index = () => {
@@ -80,6 +82,14 @@ const Index = () => {
           <div className="flex items-center space-x-4">
             {/* Real-time Notifications System */}
             <NotificationSystem />
+            
+            {/* Analytics Quick Access */}
+            <Link to="/analytics">
+              <Button variant="outline" className="flex items-center space-x-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <BarChart3 className="h-4 w-4" />
+                <span>View Analytics</span>
+              </Button>
+            </Link>
             
             {/* Quick Emergency Report - Role Protected */}
             <RoleBasedAccess allowedRoles={['admin', 'dispatcher']}>
