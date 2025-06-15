@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useOfflineMap } from '@/hooks/useOfflineMap';
 import NotificationCenter from '@/components/notifications/NotificationCenter';
+import { DevicePreviewSelector } from '@/components/enhanced/DevicePreviewSelector';
 import { 
   Bell, 
   Menu, 
@@ -60,6 +61,9 @@ const EnhancedHeader: React.FC<EnhancedHeaderProps> = ({ toggleSidebar }) => {
             </div>
           )}
         </div>
+
+        {/* Device Preview Selector */}
+        <DevicePreviewSelector />
 
         {/* Notifications */}
         <div className="relative">
