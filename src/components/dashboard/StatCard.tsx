@@ -12,9 +12,10 @@ interface StatCardProps {
     isPositive: boolean;
   };
   color?: 'blue' | 'green' | 'red' | 'yellow';
+  className?: string;
 }
 
-const StatCard = ({ title, value, icon, trend, color = 'blue' }: StatCardProps) => {
+const StatCard = ({ title, value, icon, trend, color = 'blue', className }: StatCardProps) => {
   const colorVariants = {
     blue: 'from-blue-500 to-blue-600',
     green: 'from-emerald-500 to-emerald-600',
@@ -30,7 +31,10 @@ const StatCard = ({ title, value, icon, trend, color = 'blue' }: StatCardProps) 
   };
 
   return (
-    <div className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+    <div className={cn(
+      "group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1",
+      className
+    )}>
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-4">
           <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
