@@ -14,7 +14,7 @@ import { SystemAlerts } from '@/components/alerts/SystemAlerts';
 import { NotificationSystem } from '@/components/enhanced/NotificationSystem';
 import { useEmergencies, useAmbulances, useHospitalBeds } from '@/hooks/useSupabaseQuery';
 import { Button } from '@/components/ui/button';
-import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3 } from 'lucide-react';
+import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3, Globe, ExternalLink } from 'lucide-react';
 import { RoleBasedAccess } from '@/components/enhanced/RoleBasedAccess';
 
 const Index = () => {
@@ -80,6 +80,15 @@ const Index = () => {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Healthcare Portal Access */}
+            <Link to="/healthcare">
+              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-emerald-100 transition-all duration-300">
+                <Globe className="h-4 w-4" />
+                <span>Healthcare Portal</span>
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            </Link>
+            
             {/* Real-time Notifications System */}
             <NotificationSystem />
             

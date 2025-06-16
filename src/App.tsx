@@ -17,6 +17,7 @@ import RoutePlanning from "./pages/RoutePlanning";
 import Reports from "./pages/Reports";
 import PluginManagement from "./pages/PluginManagement";
 import Analytics from "./pages/Analytics";
+import Healthcare from "./pages/Healthcare";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/healthcare" element={<Healthcare />} />
               <Route path="/" element={<Index />} />
               <Route path="/emergency" element={<Emergency />} />
               <Route path="/medicines" element={<Medicines />} />

@@ -22,7 +22,8 @@ import {
   BarChart3,
   Heart,
   Home,
-  Map
+  Map,
+  Globe
 } from 'lucide-react';
 
 interface EmergencySidebarProps {
@@ -36,6 +37,7 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
   // Navigation items with icons and labels
   const navItems = [
     { path: '/', icon: <Home size={20} />, label: 'Dashboard' },
+    { path: '/healthcare', icon: <Globe size={20} />, label: 'Healthcare Portal', badge: 'New' },
     { path: '/emergency', icon: <AlertTriangle size={20} />, label: 'Emergency' },
     { path: '/appointments', icon: <Calendar size={20} />, label: 'Appointments' },
     { path: '/medicines', icon: <Pill size={20} />, label: 'Medicines' },
@@ -99,7 +101,12 @@ const EmergencySidebar = ({ isOpen, onClose }: EmergencySidebarProps) => {
                   `}>
                     {item.icon}
                   </span>
-                  <span className="ml-3">{item.label}</span>
+                  <span className="ml-3 flex-1">{item.label}</span>
+                  {item.badge && (
+                    <Badge className="bg-emerald-100 text-emerald-800 text-xs">
+                      {item.badge}
+                    </Badge>
+                  )}
                   {isActive(item.path) && (
                     <div className="ml-auto w-2 h-2 bg-white rounded-full shadow-sm"></div>
                   )}

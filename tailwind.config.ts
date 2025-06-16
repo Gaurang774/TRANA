@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,123 +62,73 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Enhanced Medical UI Color Palette - Light Mode Focused
+				// Healthcare Professional Color System
 				medical: {
-					// Primary Colors (WCAG AAA compliant)
-					blue: '#1e40af',        // Primary CTA - Strong, trustworthy blue
-					'blue-light': '#3b82f6', // Hover states, secondary actions
-					'blue-pale': '#eff6ff',  // Light backgrounds, subtle highlights
+					// Primary Medical Blue
+					blue: '#1E3A8A',        // Deep Medical Blue - Primary
+					'blue-light': '#3B82F6', // Bright Blue - Secondary
+					'blue-pale': '#EFF6FF',  // Light Blue Background
+					'blue-accent': '#93C5FD', // Light Blue Accent
 					
-					// Secondary & Accent Colors
-					green: '#047857',       // Success states, positive indicators
-					'green-light': '#10b981', // Success hover states
-					'green-pale': '#ecfdf5', // Success backgrounds
+					// Medical Success & Health
+					green: '#10B981',       // Medical Green - Success
+					'green-light': '#34D399', // Light Green
+					'green-pale': '#ECFDF5', // Success backgrounds
 					
-					teal: '#0f766e',        // Professional accent, info states
-					'teal-light': '#14b8a6', // Teal hover states
-					'teal-pale': '#f0fdfa',  // Teal backgrounds
+					// Medical Warning & Alerts
+					amber: '#F59E0B',       // Amber Alert - Warning
+					'amber-light': '#FCD34D', // Light Amber
+					'amber-pale': '#FFFBEB', // Warning backgrounds
 					
-					// Alert & Status Colors (High contrast)
-					red: '#dc2626',         // Critical errors, emergency alerts
-					'red-light': '#ef4444', // Error hover states
-					'red-pale': '#fef2f2',  // Error backgrounds
+					// Medical Error & Critical
+					red: '#EF4444',         // Medical Red - Error/Critical
+					'red-light': '#F87171', // Light Red
+					'red-pale': '#FEF2F2',  // Error backgrounds
 					
-					orange: '#ea580c',      // Warnings, medium priority
-					'orange-light': '#f97316', // Warning hover states
-					'orange-pale': '#fff7ed', // Warning backgrounds
-					
-					// Professional Grays (Optimal contrast ratios)
+					// Professional Grays
 					slate: {
-						50: '#f8fafc',      // Pure background
-						100: '#f1f5f9',     // Card backgrounds
-						200: '#e2e8f0',     // Subtle borders
-						300: '#cbd5e1',     // Disabled states
-						400: '#94a3b8',     // Placeholder text
-						500: '#64748b',     // Secondary text
-						600: '#475569',     // Body text
-						700: '#334155',     // Headings
-						800: '#1e293b',     // Dark text
-						900: '#0f172a',     // Maximum contrast
-					},
-					
-					// Neutral Grays (Warm undertone for healthcare warmth)
-					gray: {
-						50: '#fafafa',
-						100: '#f5f5f5',
-						200: '#e5e5e5',
-						300: '#d4d4d4',
-						400: '#a3a3a3',
-						500: '#737373',
-						600: '#525252',
-						700: '#404040',
-						800: '#262626',
-						900: '#171717',
+						25: '#FCFCFD',      // Ultra light background
+						50: '#F8FAFC',      // Cool white background
+						100: '#F1F5F9',     // Light surface
+						200: '#E2E8F0',     // Subtle borders
+						300: '#CBD5E1',     // Medium borders
+						400: '#94A3B8',     // Disabled text
+						500: '#64748B',     // Secondary text
+						600: '#475569',     // Primary text
+						700: '#334155',     // Dark text
+						800: '#1E293B',     // Darker text
+						900: '#0F172A',     // Darkest text
 					}
 				},
 				
-				// Semantic Color System for UI Components
-				semantic: {
-					// Background Colors
-					background: {
-						primary: '#ffffff',     // Main app background
-						secondary: '#f8fafc',   // Section backgrounds
-						tertiary: '#f1f5f9',    // Card backgrounds
-						overlay: 'rgba(15, 23, 42, 0.8)', // Modal overlays
-					},
-					
-					// Text Colors (WCAG AAA compliant)
-					text: {
-						primary: '#0f172a',     // Main text (21:1 contrast)
-						secondary: '#334155',   // Secondary text (12:1 contrast)
-						tertiary: '#64748b',    // Muted text (7:1 contrast)
-						disabled: '#94a3b8',    // Disabled text (4.5:1 contrast)
-						inverse: '#ffffff',     // Text on dark backgrounds
-					},
-					
-					// Interactive States
-					interactive: {
-						primary: '#1e40af',     // Primary buttons, links
-						'primary-hover': '#1d4ed8', // Primary hover state
-						secondary: '#0f766e',   // Secondary buttons
-						'secondary-hover': '#0d9488', // Secondary hover
-						focus: '#3b82f6',       // Focus rings
-						disabled: '#e2e8f0',    // Disabled backgrounds
-					},
-					
+				// Semantic Healthcare Colors
+				healthcare: {
 					// Status Colors
-					status: {
-						success: '#047857',     // Success states
-						'success-bg': '#ecfdf5', // Success backgrounds
-						warning: '#ea580c',     // Warning states  
-						'warning-bg': '#fff7ed', // Warning backgrounds
-						error: '#dc2626',       // Error states
-						'error-bg': '#fef2f2',  // Error backgrounds
-						info: '#0f766e',        // Info states
-						'info-bg': '#f0fdfa',   // Info backgrounds
-					},
+					emergency: '#DC2626',    // Emergency/Critical
+					urgent: '#EA580C',       // Urgent
+					routine: '#059669',      // Routine/Normal
+					scheduled: '#0D9488',    // Scheduled
+					completed: '#10B981',    // Completed
+					cancelled: '#6B7280',    // Cancelled
 					
-					// Border Colors
-					border: {
-						primary: '#e2e8f0',     // Default borders
-						secondary: '#cbd5e1',   // Subtle borders
-						focus: '#3b82f6',       // Focus borders
-						error: '#dc2626',       // Error borders
-						success: '#047857',     // Success borders
-					}
-				},
-				
-				// Dark Mode Palette (Optional)
-				dark: {
-					background: {
-						primary: '#0f172a',
-						secondary: '#1e293b', 
-						tertiary: '#334155',
-					},
-					text: {
-						primary: '#f8fafc',
-						secondary: '#cbd5e1',
-						tertiary: '#94a3b8',
-					}
+					// Patient Status
+					'stable': '#10B981',     // Patient stable
+					'critical': '#DC2626',   // Critical condition
+					'improving': '#059669',  // Improving
+					'monitoring': '#F59E0B', // Under monitoring
+					
+					// Department Colors
+					cardiology: '#DC2626',   // Heart/Cardiology
+					neurology: '#7C3AED',    // Brain/Neurology
+					pediatrics: '#F59E0B',   // Pediatrics
+					emergency: '#EF4444',    // Emergency
+					general: '#6B7280',      // General medicine
+					
+					// Priority Levels
+					'priority-high': '#DC2626',
+					'priority-medium': '#F59E0B',
+					'priority-low': '#10B981',
+					'priority-routine': '#6B7280'
 				}
 			},
 			borderRadius: {
@@ -189,9 +138,18 @@ export default {
 			},
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
-				mono: ['JetBrains Mono', 'monospace']
+				mono: ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+				medical: ['Inter', 'system-ui', 'sans-serif'] // Medical-grade typography
+			},
+			fontSize: {
+				'medical-xs': ['0.75rem', { lineHeight: '1.5', letterSpacing: '0.025em' }],
+				'medical-sm': ['0.875rem', { lineHeight: '1.5', letterSpacing: '0.025em' }],
+				'medical-base': ['1rem', { lineHeight: '1.6', letterSpacing: '-0.01em' }],
+				'medical-lg': ['1.125rem', { lineHeight: '1.6', letterSpacing: '-0.01em' }],
+				'medical-xl': ['1.25rem', { lineHeight: '1.5', letterSpacing: '-0.025em' }],
 			},
 			keyframes: {
+				// Existing animations
 				'accordion-down': {
 					from: {
 						height: '0'
@@ -208,7 +166,8 @@ export default {
 						height: '0'
 					}
 				},
-				'pulse-slow': {
+				// Healthcare-specific animations
+				'pulse-medical': {
 					'0%, 100%': {
 						opacity: '1'
 					},
@@ -216,28 +175,53 @@ export default {
 						opacity: '0.7'
 					}
 				},
-				'fade-in': {
+				'fade-in-up': {
 					'0%': {
 						opacity: '0',
-						transform: 'translateY(10px)'
+						transform: 'translateY(20px)'
 					},
 					'100%': {
 						opacity: '1',
 						transform: 'translateY(0)'
+					}
+				},
+				'slide-in-right': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateX(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateX(0)'
+					}
+				},
+				'heartbeat': {
+					'0%, 100%': {
+						transform: 'scale(1)'
+					},
+					'50%': {
+						transform: 'scale(1.05)'
 					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
-				'fade-in': 'fade-in 0.3s ease-out'
+				'pulse-medical': 'pulse-medical 2s ease-in-out infinite',
+				'fade-in-up': 'fade-in-up 0.6s ease-out',
+				'slide-in-right': 'slide-in-right 0.4s ease-out',
+				'heartbeat': 'heartbeat 1.5s ease-in-out infinite'
 			},
 			boxShadow: {
-				'soft': '0 2px 8px 0 rgb(0 0 0 / 0.05)',
-				'medium': '0 4px 16px 0 rgb(0 0 0 / 0.08)',
-				'large': '0 8px 32px 0 rgb(0 0 0 / 0.12)',
-				'medical': '0 4px 20px 0 rgb(30 64 175 / 0.08)' // Subtle blue shadow
+				'medical': '0 4px 20px 0 rgba(30, 58, 138, 0.08)',
+				'medical-lg': '0 8px 32px 0 rgba(30, 58, 138, 0.12)',
+				'trust': '0 4px 16px 0 rgba(16, 185, 129, 0.08)',
+				'alert': '0 4px 16px 0 rgba(239, 68, 68, 0.08)'
+			},
+			spacing: {
+				'medical': '1.5rem',
+				'medical-lg': '2rem',
+				'medical-xl': '3rem'
 			}
 		}
 	},
