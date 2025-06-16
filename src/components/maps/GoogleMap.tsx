@@ -15,8 +15,8 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService | null>(null);
   const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
-  const [mapApiKey, setMapApiKey] = useState<string>(apiKey || '');
-  const [showKeyInput, setShowKeyInput] = useState<boolean>(!apiKey);
+  const [mapApiKey, setMapApiKey] = useState<string>(apiKey || 'AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w');
+  const [showKeyInput, setShowKeyInput] = useState<boolean>(false);
 
   // Expose calculateRoute method to parent component via ref
   useImperativeHandle(ref, () => ({

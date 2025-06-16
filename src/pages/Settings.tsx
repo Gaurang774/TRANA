@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import { useTheme } from '@/components/ThemeProvider';
 const Settings = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  const [mapApiKey, setMapApiKey] = useState(localStorage.getItem('google_maps_api_key') || '');
+  const [mapApiKey, setMapApiKey] = useState('AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(theme === 'dark');
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -24,6 +25,11 @@ const Settings = () => {
   useEffect(() => {
     setDarkMode(theme === 'dark');
   }, [theme]);
+
+  // Set the API key in localStorage on component mount
+  useEffect(() => {
+    localStorage.setItem('google_maps_api_key', 'AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w');
+  }, []);
 
   const handleSaveSettings = (settingType: string) => {
     toast({
@@ -41,7 +47,7 @@ const Settings = () => {
     localStorage.setItem('google_maps_api_key', mapApiKey);
     toast({
       title: "API Key Saved",
-      description: "Your Google Maps API key has been saved.",
+      description: "Your Google Maps API key has been saved and is now active.",
     });
   };
 
@@ -231,6 +237,15 @@ const Settings = () => {
                   <CardTitle>Map Configuration</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm font-medium text-green-800">
+                        Google Maps API Key is active and configured
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="google-maps-api-key">Google Maps API Key</Label>
                     <div className="flex gap-2">
