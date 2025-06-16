@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LandingPage from "@/components/LandingPage";
 import Index from "./pages/Index";
 import Emergency from "./pages/Emergency";
 import Settings from "./pages/Settings";
@@ -47,6 +48,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/healthcare" element={<Healthcare />} />
               <Route path="/" element={<Index />} />
               <Route path="/emergency" element={<Emergency />} />

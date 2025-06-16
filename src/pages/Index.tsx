@@ -14,7 +14,7 @@ import { SystemAlerts } from '@/components/alerts/SystemAlerts';
 import { NotificationSystem } from '@/components/enhanced/NotificationSystem';
 import { useEmergencies, useAmbulances, useHospitalBeds } from '@/hooks/useSupabaseQuery';
 import { Button } from '@/components/ui/button';
-import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3, Globe, ExternalLink } from 'lucide-react';
+import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3, Globe, ExternalLink, Heart, Home } from 'lucide-react';
 import { RoleBasedAccess } from '@/components/enhanced/RoleBasedAccess';
 
 const Index = () => {
@@ -61,7 +61,7 @@ const Index = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-12 h-12 bg-gradient-to-br from-medical-blue to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Activity className="h-7 w-7 text-white" />
+                  <Heart className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
@@ -69,17 +69,26 @@ const Index = () => {
                   </h1>
                   <div className="flex items-center space-x-2 mt-1">
                     <Shield className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Enterprise Medical Platform</span>
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Smart Healthcare System</span>
                   </div>
                 </div>
               </div>
             </div>
             <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 font-medium max-w-2xl">
-              Real-time emergency medical services coordination with AI-powered triage, predictive analytics, and seamless multi-hospital integration
+              Real-time healthcare management with AI-powered insights, intelligent triage, and seamless multi-hospital coordination
             </p>
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Public Landing Page Access */}
+            <Link to="/landing">
+              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-emerald-100 transition-all duration-300">
+                <Home className="h-4 w-4" />
+                <span>Public Site</span>
+                <ExternalLink className="h-3 w-3" />
+              </Button>
+            </Link>
+            
             {/* Healthcare Portal Access */}
             <Link to="/healthcare">
               <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-emerald-100 transition-all duration-300">
@@ -96,7 +105,7 @@ const Index = () => {
             <Link to="/analytics">
               <Button variant="outline" className="flex items-center space-x-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <BarChart3 className="h-4 w-4" />
-                <span>View Analytics</span>
+                <span>Analytics</span>
               </Button>
             </Link>
             
