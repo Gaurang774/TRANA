@@ -10,18 +10,49 @@ interface GoogleMapProps {
   apiKey?: string;
 }
 
+// Create a single loader instance to avoid conflicts
+let loaderInstance: Loader | null = null;
+let currentApiKey: string | null = null;
+
 const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) => {
   const mapContainer = React.useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [directionsService, setDirectionsService] = useState<google.maps.DirectionsService | null>(null);
   const [directionsRenderer, setDirectionsRenderer] = useState<google.maps.DirectionsRenderer | null>(null);
-  const [mapApiKey, setMapApiKey] = useState<string>(apiKey || 'AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w');
+  const [mapApiKey, setMapApiKey] = useState<string>('');
   const [showKeyInput, setShowKeyInput] = useState<boolean>(false);
+  const [mapError, setMapError] = useState<string>('');
+
+  // Initialize API key from props, localStorage, or default
+  useEffect(() => {
+    let keyToUse = '';
+    
+    if (apiKey) {
+      keyToUse = apiKey;
+    } else {
+      const savedKey = localStorage.getItem('google_maps_api_key');
+      if (savedKey) {
+        keyToUse = savedKey;
+      } else {
+        keyToUse = 'AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w';
+      }
+    }
+    
+    setMapApiKey(keyToUse);
+    
+    // Show key input if no valid key is available
+    if (!keyToUse || keyToUse === 'YOUR_API_KEY_HERE') {
+      setShowKeyInput(true);
+    }
+  }, [apiKey]);
 
   // Expose calculateRoute method to parent component via ref
   useImperativeHandle(ref, () => ({
     calculateRoute: (origin: string, destination: string) => {
-      if (!directionsService || !directionsRenderer) return;
+      if (!directionsService || !directionsRenderer) {
+        console.error('Directions service not initialized');
+        return;
+      }
 
       directionsService.route({
         origin,
@@ -59,17 +90,28 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
   }));
 
   useEffect(() => {
-    if (!mapContainer.current || !mapApiKey) return;
+    if (!mapContainer.current || !mapApiKey || mapApiKey === 'YOUR_API_KEY_HERE') {
+      return;
+    }
 
     const initMap = async () => {
-      const loader = new Loader({
-        apiKey: mapApiKey,
-        version: "weekly",
-        libraries: ["places", "routes"]
-      });
-
       try {
-        const google = await loader.load();
+        setMapError('');
+
+        // Only create a new loader if we don't have one or the API key changed
+        if (!loaderInstance || currentApiKey !== mapApiKey) {
+          loaderInstance = new Loader({
+            apiKey: mapApiKey,
+            version: "weekly",
+            libraries: ["places", "routes"]
+          });
+          currentApiKey = mapApiKey;
+        }
+
+        const google = await loaderInstance.load();
+        
+        if (!mapContainer.current) return;
+
         const newMap = new google.maps.Map(mapContainer.current, {
           center: { lat: 20.5937, lng: 78.9629 }, // Center on India
           zoom: 5,
@@ -156,13 +198,16 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
         setMap(newMap);
         setDirectionsService(newDirectionsService);
         setDirectionsRenderer(newDirectionsRenderer);
+        
+        console.log('Google Maps initialized successfully');
       } catch (error) {
         console.error("Error loading Google Maps:", error);
+        setMapError(`Failed to load Google Maps: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     };
 
     initMap();
-  }, [mapContainer, mapApiKey]);
+  }, [mapApiKey]);
 
   const handleApiKeySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,17 +216,30 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
       setMapApiKey(input.value);
       setShowKeyInput(false);
       localStorage.setItem('google_maps_api_key', input.value);
+      // Reset loader to use new key
+      loaderInstance = null;
+      currentApiKey = null;
     }
   };
 
-  // Check localStorage for saved API key on component mount
-  useEffect(() => {
-    const savedKey = localStorage.getItem('google_maps_api_key');
-    if (savedKey && !apiKey) {
-      setMapApiKey(savedKey);
-      setShowKeyInput(false);
-    }
-  }, [apiKey]);
+  // Show error message if there's a map error
+  if (mapError) {
+    return (
+      <div className={cn("flex flex-col", className)}>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 font-medium">Map Error</p>
+          <p className="text-sm text-red-600 mt-1">{mapError}</p>
+          <Button 
+            onClick={() => setShowKeyInput(true)} 
+            className="mt-2"
+            size="sm"
+          >
+            Update API Key
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col", className)}>
@@ -201,6 +259,7 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
                 id="google-maps-api-key"
                 type="text" 
                 placeholder="Enter Google Maps API Key"
+                defaultValue={mapApiKey}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-blue"
               />
               <Button type="submit">
@@ -215,13 +274,16 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
         ref={mapContainer} 
         className={cn(
           "w-full h-[500px] rounded-lg overflow-hidden relative",
-          !mapApiKey && "bg-gray-100 flex items-center justify-center"
+          (!mapApiKey || mapApiKey === 'YOUR_API_KEY_HERE') && "bg-gray-100 flex items-center justify-center"
         )}
       >
-        {!mapApiKey && (
+        {(!mapApiKey || mapApiKey === 'YOUR_API_KEY_HERE') && (
           <div className="text-center p-4">
             <Map className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-            <p className="text-gray-500">Enter Google Maps API key to display the map</p>
+            <p className="text-gray-500 mb-2">Enter Google Maps API key to display the map</p>
+            <Button onClick={() => setShowKeyInput(true)}>
+              Configure API Key
+            </Button>
           </div>
         )}
       </div>

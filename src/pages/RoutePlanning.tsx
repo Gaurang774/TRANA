@@ -11,9 +11,12 @@ const RoutePlanning = () => {
   const mapRef = useRef<any>(null);
 
   const handleRouteCalculate = (origin: string, destination: string) => {
+    console.log('Calculating route from', origin, 'to', destination);
     // Reference the GoogleMap component's calculateRoute method
     if (mapRef.current && mapRef.current.calculateRoute) {
       mapRef.current.calculateRoute(origin, destination);
+    } else {
+      console.error('Map reference or calculateRoute method not available');
     }
   };
 
@@ -108,7 +111,7 @@ const RoutePlanning = () => {
         </div>
         
         <div className="lg:col-span-1">
-          <RoutePlanningForm />
+          <RoutePlanningForm onRouteCalculate={handleRouteCalculate} />
         </div>
       </div>
     </Layout>

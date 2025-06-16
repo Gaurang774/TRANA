@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,7 +41,11 @@ const routeFormSchema = z.object({
 
 type RouteFormData = z.infer<typeof routeFormSchema>;
 
-const RoutePlanningForm = () => {
+interface RoutePlanningFormProps {
+  onRouteCalculate?: (origin: string, destination: string) => void;
+}
+
+const RoutePlanningForm = ({ onRouteCalculate }: RoutePlanningFormProps) => {
   const { toast } = useToast();
   const [waypoints, setWaypoints] = useState<string[]>([]);
   const [newWaypoint, setNewWaypoint] = useState('');
@@ -69,6 +72,7 @@ const RoutePlanningForm = () => {
     control,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting }
   } = useForm<RouteFormData>({
     resolver: zodResolver(routeFormSchema),
@@ -93,6 +97,11 @@ const RoutePlanningForm = () => {
         selectedMedicines: watchedMedicines
       });
       
+      // Call the route calculation if handler is provided
+      if (onRouteCalculate && data.origin && data.destination) {
+        onRouteCalculate(data.origin, data.destination);
+      }
+      
       toast({
         title: "Route Planned Successfully",
         description: "Your route has been optimized with selected features",
@@ -101,6 +110,23 @@ const RoutePlanningForm = () => {
       toast({
         title: "Error",
         description: "Failed to plan route",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleQuickRoute = () => {
+    const formData = getValues();
+    if (formData.origin && formData.destination && onRouteCalculate) {
+      onRouteCalculate(formData.origin, formData.destination);
+      toast({
+        title: "Route Calculated",
+        description: "Route displayed on map",
+      });
+    } else {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both origin and destination",
         variant: "destructive"
       });
     }
@@ -142,13 +168,13 @@ const RoutePlanningForm = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2">
-          <Navigation className="h-8 w-8 text-blue-600" />
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center justify-center gap-2">
+          <Navigation className="h-6 w-6 text-blue-600" />
           Route Planning
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Plan optimized routes with integrated plugins and medical resources
         </p>
       </div>
@@ -174,13 +200,13 @@ const RoutePlanningForm = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="origin">Origin *</Label>
                     <Input
                       id="origin"
                       {...register('origin')}
-                      placeholder="Starting location"
+                      placeholder="Starting location (e.g., Delhi, India)"
                       className={errors.origin ? 'border-red-500' : ''}
                     />
                     {errors.origin && (
@@ -193,13 +219,19 @@ const RoutePlanningForm = () => {
                     <Input
                       id="destination"
                       {...register('destination')}
-                      placeholder="Target location"
+                      placeholder="Target location (e.g., Mumbai, India)"
                       className={errors.destination ? 'border-red-500' : ''}
                     />
                     {errors.destination && (
                       <p className="text-sm text-red-500">{errors.destination.message}</p>
                     )}
                   </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="button" onClick={handleQuickRoute} variant="outline" className="flex-1">
+                    Calculate Route
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -277,7 +309,7 @@ const RoutePlanningForm = () => {
                     <p className="text-sm">Check the Plugin Manager to enable plugins</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {availablePlugins.map((plugin) => (
                       <div 
                         key={plugin.id}
@@ -335,7 +367,7 @@ const RoutePlanningForm = () => {
                     <p className="text-sm">Add medicines in the Medicine Management section</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                  <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
                     {medicines.map((medicine) => (
                       <div 
                         key={medicine.id}
