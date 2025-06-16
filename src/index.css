@@ -294,7 +294,7 @@ textarea:focus-visible,
 }
 
 .medical-table tr:nth-child(even) {
-  @apply bg-slate-25;
+  @apply bg-gray-50;
 }
 
 /* Professional form styles */
