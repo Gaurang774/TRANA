@@ -176,7 +176,7 @@ export function NotificationSystem() {
             <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center space-x-2">
               {connectionError && (
-                <AlertCircle className="h-4 w-4 text-red-500" title="Connection Error" />
+                <AlertCircle className="h-4 w-4 text-red-500" />
               )}
               {unreadCount > 0 && (
                 <Button variant="ghost" size="sm" onClick={markAllAsRead}>
