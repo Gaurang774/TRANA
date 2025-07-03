@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Bell, BellRing, X } from 'lucide-react';
+import { Bell, BellRing, X, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,6 +19,7 @@ export function NotificationSystem() {
   const [notifications, setNotifications] = useState<PushNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [connectionError, setConnectionError] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -30,78 +31,100 @@ export function NotificationSystem() {
       }
     }
 
-    // Set up real-time listeners for emergency updates
-    const emergencyChannel = supabase
-      .channel('emergency-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'emergencies'
-        },
-        (payload) => {
-          const emergency = payload.new;
-          const notification: PushNotification = {
-            id: `emergency-${emergency.id}`,
-            title: 'New Emergency Reported',
-            message: `${emergency.type} emergency at ${emergency.location}`,
-            type: 'emergency',
-            timestamp: new Date(),
-            read: false
-          };
+    // Set up real-time listeners with error handling
+    const setupRealtimeListeners = () => {
+      try {
+        const emergencyChannel = supabase
+          .channel('emergency-notifications')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'emergencies'
+            },
+            (payload) => {
+              const emergency = payload.new;
+              const notification: PushNotification = {
+                id: `emergency-${emergency.id}`,
+                title: 'New Emergency Reported',
+                message: `${emergency.type} emergency at ${emergency.location}`,
+                type: 'emergency',
+                timestamp: new Date(),
+                read: false
+              };
 
-          setNotifications(prev => [notification, ...prev.slice(0, 19)]);
-          
-          // Show browser notification
-          if (permission === 'granted') {
-            new Notification(notification.title, {
-              body: notification.message,
-              icon: '/favicon.ico',
-              tag: notification.id
-            });
-          }
+              setNotifications(prev => [notification, ...prev.slice(0, 19)]);
+              
+              // Show browser notification
+              if (permission === 'granted') {
+                new Notification(notification.title, {
+                  body: notification.message,
+                  icon: '/favicon.ico',
+                  tag: notification.id
+                });
+              }
 
-          // Show toast notification
-          toast({
-            title: notification.title,
-            description: notification.message,
-            variant: emergency.priority === 'critical' ? 'destructive' : 'default'
+              // Show toast notification
+              toast({
+                title: notification.title,
+                description: notification.message,
+                variant: emergency.priority === 'critical' ? 'destructive' : 'default'
+              });
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'ambulances'
+            },
+            (payload) => {
+              const ambulance = payload.new;
+              if (ambulance.status === 'dispatched') {
+                const notification: PushNotification = {
+                  id: `ambulance-${ambulance.id}-${Date.now()}`,
+                  title: 'Ambulance Dispatched',
+                  message: `${ambulance.ambulance_number} has been dispatched`,
+                  type: 'ambulance',
+                  timestamp: new Date(),
+                  read: false
+                };
+
+                setNotifications(prev => [notification, ...prev.slice(0, 19)]);
+                
+                toast({
+                  title: notification.title,
+                  description: notification.message
+                });
+              }
+            }
+          )
+          .subscribe((status) => {
+            console.log('Notification subscription status:', status);
+            if (status === 'SUBSCRIBED') {
+              setConnectionError(false);
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+              setConnectionError(true);
+              console.error('Notification system connection error');
+            }
           });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'ambulances'
-        },
-        (payload) => {
-          const ambulance = payload.new;
-          if (ambulance.status === 'dispatched') {
-            const notification: PushNotification = {
-              id: `ambulance-${ambulance.id}-${Date.now()}`,
-              title: 'Ambulance Dispatched',
-              message: `${ambulance.ambulance_number} has been dispatched`,
-              type: 'ambulance',
-              timestamp: new Date(),
-              read: false
-            };
 
-            setNotifications(prev => [notification, ...prev.slice(0, 19)]);
-            
-            toast({
-              title: notification.title,
-              description: notification.message
-            });
-          }
-        }
-      )
-      .subscribe();
+        return emergencyChannel;
+      } catch (error) {
+        console.error('Error setting up real-time listeners:', error);
+        setConnectionError(true);
+        return null;
+      }
+    };
+
+    const channel = setupRealtimeListeners();
 
     return () => {
-      supabase.removeChannel(emergencyChannel);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [permission, toast]);
 
@@ -142,6 +165,9 @@ export function NotificationSystem() {
             {unreadCount > 9 ? '9+' : unreadCount}
           </Badge>
         )}
+        {connectionError && (
+          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+        )}
       </Button>
 
       {showNotifications && (
@@ -149,6 +175,9 @@ export function NotificationSystem() {
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h3 className="font-semibold">Notifications</h3>
             <div className="flex items-center space-x-2">
+              {connectionError && (
+                <AlertCircle className="h-4 w-4 text-red-500" title="Connection Error" />
+              )}
               {unreadCount > 0 && (
                 <Button variant="ghost" size="sm" onClick={markAllAsRead}>
                   Mark all read
@@ -165,6 +194,14 @@ export function NotificationSystem() {
           </div>
           
           <div className="max-h-80 overflow-y-auto">
+            {connectionError && (
+              <div className="p-3 bg-red-50 dark:bg-red-950/20 border-b border-red-100 dark:border-red-900">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  Real-time notifications temporarily unavailable
+                </p>
+              </div>
+            )}
+            
             {notifications.length === 0 ? (
               <div className="p-4 text-center text-gray-500">
                 No notifications yet

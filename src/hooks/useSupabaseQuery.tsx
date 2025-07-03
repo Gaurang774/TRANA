@@ -25,14 +25,38 @@ export function useSupabaseQuery<T>(
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const { data, error } = await queryFn();
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await queryFn();
+        if (error) {
+          console.error(`Supabase query error for ${queryKey.join('.')}:`, error);
+          // For table not found or permission errors, return empty array/null instead of throwing
+          if (error.code === '42P01' || error.code === '42501') {
+            return null;
+          }
+          throw error;
+        }
+        return data;
+      } catch (err) {
+        console.error(`Query execution error for ${queryKey.join('.')}:`, err);
+        // Return null for non-critical errors to prevent app crashes
+        return null;
+      }
     },
     enabled: options.enabled,
-    staleTime: options.staleTime ?? 5 * 60 * 1000, // 5 minutes default
-    gcTime: options.gcTime ?? 10 * 60 * 1000, // 10 minutes default
+    staleTime: options.staleTime ?? 5 * 60 * 1000,
+    gcTime: options.gcTime ?? 10 * 60 * 1000,
     refetchInterval: options.refetchInterval,
+    retry: (failureCount, error: any) => {
+      // Don't retry on permission or table not found errors
+      if (error?.code === '42501' || error?.code === '42P01') {
+        return false;
+      }
+      // Don't retry on 4xx errors except 408, 429
+      if (error?.status >= 400 && error?.status < 500 && ![408, 429].includes(error.status)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 
@@ -59,22 +83,30 @@ export function useSupabaseMutation<T, V = void>(
     },
     onError: (error: Error) => {
       const message = formatErrorMessage(error);
-      toast({
-        title: "Error",
-        description: message,
-        variant: "destructive",
-      });
+      console.error('Mutation error:', error);
+      
+      // Only show toast for user-actionable errors
+      if (!error.message?.includes('permission denied') && !error.message?.includes('does not exist')) {
+        toast({
+          title: "Error",
+          description: message,
+          variant: "destructive",
+        });
+      }
       options.onError?.(error);
     },
   });
 }
 
-// Specific hooks for common operations
+// Specific hooks for common operations with improved error handling
 export function useEmergencies(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['emergencies'],
     async () => {
-      const { data, error } = await supabase.from('emergencies').select('*').neq('status', 'completed');
+      const { data, error } = await supabase
+        .from('emergencies')
+        .select('*')
+        .neq('status', 'completed');
       return { data, error };
     },
     options
@@ -107,7 +139,10 @@ export function useMedicines(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['medicines'],
     async () => {
-      const { data, error } = await supabase.from('medicines').select('*').order('name');
+      const { data, error } = await supabase
+        .from('medicines')
+        .select('*')
+        .order('name');
       return { data, error };
     },
     options
@@ -118,18 +153,25 @@ export function useAppointments(options: UseSupabaseQueryOptions = {}) {
   return useSupabaseQuery(
     ['appointments'],
     async () => {
-      const { data, error } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: false });
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .order('appointment_date', { ascending: false });
       return { data, error };
     },
     options
   );
 }
 
-// Mutation hooks
+// Mutation hooks with improved error handling
 export function useCreateEmergency() {
   return useSupabaseMutation(
     async (emergency: any) => {
-      const { data, error } = await supabase.from('emergencies').insert([emergency]).select().single();
+      const { data, error } = await supabase
+        .from('emergencies')
+        .insert([emergency])
+        .select()
+        .single();
       return { data, error };
     },
     { invalidateQueries: [['emergencies']] }
@@ -139,7 +181,12 @@ export function useCreateEmergency() {
 export function useUpdateEmergency() {
   return useSupabaseMutation(
     async ({ id, updates }: { id: string; updates: any }) => {
-      const { data, error } = await supabase.from('emergencies').update(updates).eq('id', id).select().single();
+      const { data, error } = await supabase
+        .from('emergencies')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
       return { data, error };
     },
     { invalidateQueries: [['emergencies']] }

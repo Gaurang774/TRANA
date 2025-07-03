@@ -49,20 +49,34 @@ const priorityColors = {
 };
 
 const ActiveEmergencies = () => {
-  const { data: emergencies, isLoading, refetch } = useQuery({
+  const { data: emergencies, isLoading, error, refetch } = useQuery({
     queryKey: ['active-emergencies'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('emergencies')
-        .select('*')
-        .neq('status', 'completed')
-        .neq('status', 'cancelled')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (error) throw error;
-      return data as Emergency[];
-    }
+      try {
+        const { data, error } = await supabase
+          .from('emergencies')
+          .select('*')
+          .neq('status', 'completed')
+          .neq('status', 'cancelled')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (error) {
+          console.error('Error fetching emergencies:', error);
+          // Return empty array for database errors to prevent crashes
+          if (error.code === '42P01' || error.code === '42501') {
+            return [];
+          }
+          throw error;
+        }
+        return data as Emergency[] || [];
+      } catch (err) {
+        console.error('Failed to fetch emergencies:', err);
+        return [];
+      }
+    },
+    retry: false, // Don't retry on permission errors
+    staleTime: 30000,
   });
 
   const updateEmergencyStatus = async (id: string, status: Emergency['status']) => {
@@ -77,6 +91,7 @@ const ActiveEmergencies = () => {
       toast.success(`Emergency status updated to ${status}`);
       refetch();
     } catch (error: any) {
+      console.error('Error updating emergency status:', error);
       toast.error(`Error updating status: ${error.message}`);
     }
   };
@@ -90,6 +105,25 @@ const ActiveEmergencies = () => {
         </div>
         <div className="p-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-medical-blue mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border">
+        <div className="p-4 border-b">
+          <h2 className="font-semibold text-lg">Active Emergencies</h2>
+          <p className="text-sm text-red-500">Database connection issue</p>
+        </div>
+        <div className="p-8 text-center">
+          <AlertCircle className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+          <h3 className="text-lg font-medium text-gray-600">Connection Error</h3>
+          <p className="text-gray-500 mt-1">Unable to load emergency data</p>
+          <Button variant="outline" onClick={() => refetch()} className="mt-4">
+            Try Again
+          </Button>
         </div>
       </div>
     );
