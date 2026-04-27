@@ -51,79 +51,77 @@ const Index = () => {
 
   return (
     <Layout>
+      <div className="mesh-bg" />
+      
       {/* System-wide Alerts for Critical Notifications */}
       <SystemAlerts />
 
       {/* Enhanced Header Section with Enterprise Branding */}
-      <div className="mb-8 lg:mb-10">
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-14 h-14 medical-gradient rounded-2xl flex items-center justify-center shadow-medical">
-                  <Heart className="h-7 w-7 text-white animate-pulse" />
+      <div className="mb-12 lg:mb-16 animate-fade-in">
+        <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-10">
+          <div className="space-y-6">
+            <div className="flex items-center space-x-6">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative w-16 h-16 bg-white dark:bg-gray-900 rounded-2xl flex items-center justify-center shadow-2xl border border-white/20 dark:border-white/5">
+                  <Heart className="h-9 w-9 text-primary animate-pulse-medical" />
                 </div>
-                <div>
-                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-                    TRANA Command Center
-                  </h1>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <Shield className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Smart Healthcare System</span>
-                  </div>
+              </div>
+              <div>
+                <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-none medical-gradient-text">
+                  TRANA
+                  <span className="block text-3xl lg:text-4xl mt-2 text-foreground/80 font-bold tracking-tight">Command Center</span>
+                </h1>
+                <div className="flex items-center space-x-3 mt-4">
+                  <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 px-3 py-1 font-bold tracking-wider uppercase text-[10px]">
+                    <Shield className="h-3 w-3 mr-1.5 inline" /> Smart Healthcare OS
+                  </Badge>
+                  <Badge variant="outline" className="border-primary/20 text-primary/70 font-bold tracking-wider uppercase text-[10px]">
+                    v2.4.0-PRO
+                  </Badge>
                 </div>
               </div>
             </div>
-            <p className="text-lg text-muted-foreground font-medium max-w-2xl">
-              Real-time healthcare management with AI-powered insights, intelligent triage, and seamless multi-hospital coordination
+            <p className="text-xl text-muted-foreground/80 font-medium max-w-2xl leading-relaxed">
+              Real-time healthcare management with AI-powered insights, intelligent triage, and <span className="text-foreground font-bold">seamless multi-hospital coordination</span> across city boundaries.
             </p>
           </div>
           
-          <div className="flex items-center space-x-4">
-            {/* Public Landing Page Access */}
-            <Link to="/landing">
-              <Button variant="outline" className="glass flex items-center space-x-2 text-primary hover:bg-primary/5 transition-all duration-300">
-                <Home className="h-4 w-4" />
-                <span>Public Site</span>
-                <ExternalLink className="h-3 w-3" />
-              </Button>
-            </Link>
-            
-            {/* Healthcare Portal Access */}
-            <Link to="/healthcare">
-              <Button variant="outline" className="glass flex items-center space-x-2 text-primary hover:bg-primary/5 transition-all duration-300">
-                <Globe className="h-4 w-4" />
-                <span>Healthcare Portal</span>
-                <ExternalLink className="h-3 w-3" />
-              </Button>
-            </Link>
-            
-            {/* Real-time Notifications System */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex bg-white/50 dark:bg-black/20 backdrop-blur-md p-1.5 rounded-2xl border border-white/40 dark:border-white/5 shadow-xl">
+              <Link to="/landing">
+                <Button variant="ghost" size="sm" className="rounded-xl px-4 font-bold text-xs h-10 hover:bg-white dark:hover:bg-white/10 transition-all">
+                  <Home className="h-4 w-4 mr-2" /> SITE
+                </Button>
+              </Link>
+              <Link to="/healthcare">
+                <Button variant="ghost" size="sm" className="rounded-xl px-4 font-bold text-xs h-10 hover:bg-white dark:hover:bg-white/10 transition-all">
+                  <Globe className="h-4 w-4 mr-2" /> PORTAL
+                </Button>
+              </Link>
+              <Link to="/analytics">
+                <Button variant="ghost" size="sm" className="rounded-xl px-4 font-bold text-xs h-10 hover:bg-white dark:hover:bg-white/10 transition-all">
+                  <BarChart3 className="h-4 w-4 mr-2" /> STATS
+                </Button>
+              </Link>
+            </div>
+
             <NotificationSystem />
             
-            {/* Analytics Quick Access */}
-            <Link to="/analytics">
-              <Button variant="outline" className="glass flex items-center space-x-2 text-foreground hover:bg-foreground/5 transition-all duration-300">
-                <BarChart3 className="h-4 w-4" />
-                <span>Analytics</span>
-              </Button>
-            </Link>
-            
-            {/* Quick Emergency Report - Role Protected */}
             <RoleBasedAccess allowedRoles={['admin', 'dispatcher']}>
               <QuickEmergencyForm />
             </RoleBasedAccess>
             
             {/* System Status Indicator */}
-            <div className="glass px-6 py-3 rounded-xl flex items-center shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center space-x-3">
-                <Zap className="h-5 w-5 text-emerald-500" />
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl px-6 py-3 rounded-2xl flex items-center shadow-2xl border border-white/50 dark:border-white/5 hover:scale-105 transition-all duration-500">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Zap className="h-6 w-6 text-emerald-500" />
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></div>
+                </div>
                 <div>
-                  <span className="text-sm font-semibold text-foreground">System Online</span>
-                  <div className="flex items-center space-x-2 mt-0.5">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-muted-foreground">99.9% uptime</span>
-                  </div>
+                  <span className="text-xs font-black text-foreground/50 uppercase tracking-widest block">System Status</span>
+                  <span className="text-sm font-bold text-foreground">ONLINE • 99.9%</span>
                 </div>
               </div>
             </div>

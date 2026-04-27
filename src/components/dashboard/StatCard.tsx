@@ -32,44 +32,47 @@ const StatCard = ({ title, value, icon, trend, color = 'blue', className }: Stat
 
   return (
     <div className={cn(
-      "group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1",
+      "glass-card group p-6 lg:p-8",
       className
     )}>
       <div className="flex items-start justify-between">
         <div className="flex-1 space-y-4">
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+          <p className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest opacity-70">
             {title}
           </p>
-          <h3 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-none">
+          <h3 className="text-4xl lg:text-5xl font-black text-gray-900 dark:text-white leading-none tracking-tighter">
             {value}
           </h3>
           
           {trend && (
-            <div className="flex items-center space-x-2">
-              {trend.isPositive ? (
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
-              ) : (
-                <TrendingDown className="h-4 w-4 text-red-500" />
-              )}
-              <span
-                className={cn(
-                  "text-sm font-bold",
-                  trend.isPositive ? 'text-emerald-500' : 'text-red-500'
+            <div className="flex items-center space-x-2 pt-2">
+              <div className={cn(
+                "flex items-center px-2 py-1 rounded-lg text-xs font-black",
+                trend.isPositive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'
+              )}>
+                {trend.isPositive ? (
+                  <TrendingUp className="h-3.5 w-3.5 mr-1" />
+                ) : (
+                  <TrendingDown className="h-3.5 w-3.5 mr-1" />
                 )}
-              >
                 {Math.abs(trend.value)}%
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">vs last period</span>
+              </div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">vs last period</span>
             </div>
           )}
         </div>
         
         <div className={cn(
-          'p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300',
+          'p-4 rounded-2xl shadow-2xl group-hover:scale-110 transition-all duration-500 relative',
           iconBgVariants[color]
         )}>
-          <div className="text-white">
-            {icon}
+          {/* Glow effect */}
+          <div className={cn(
+            "absolute inset-0 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity",
+            iconBgVariants[color]
+          )}></div>
+          <div className="relative text-white">
+            {React.cloneElement(icon as React.ReactElement, { className: 'h-7 w-7' })}
           </div>
         </div>
       </div>

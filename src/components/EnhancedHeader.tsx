@@ -27,20 +27,25 @@ const EnhancedHeader: React.FC<EnhancedHeaderProps> = ({ toggleSidebar }) => {
   const { isOnline, isCacheAvailable } = useOfflineMap();
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-20 glass px-6 py-4 flex items-center justify-between border-x-0 border-t-0 shadow-lg transition-all duration-300">
+      <div className="flex items-center gap-6">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={toggleSidebar}
-          className="md:hidden"
+          className="md:hidden hover:bg-primary/10 rounded-xl"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-6 w-6" />
         </Button>
         
-        <div className="flex items-center gap-2">
-          <Activity className="h-6 w-6 text-medical-blue" />
-          <span className="font-bold text-xl text-gray-900 dark:text-white">TRANA</span>
+        <div className="flex items-center gap-3 group cursor-pointer">
+          <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
+            <Activity className="h-6 w-6 text-primary animate-pulse" />
+          </div>
+          <div className="hidden sm:block">
+            <span className="font-black text-xl text-gray-900 dark:text-white tracking-tighter">TRANA</span>
+            <div className="h-0.5 w-full bg-primary/30 rounded-full group-hover:bg-primary transition-colors"></div>
+          </div>
         </div>
       </div>
 
