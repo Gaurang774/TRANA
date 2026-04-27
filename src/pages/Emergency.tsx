@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, Ambulance, Bell, CheckCircle, Clock, MapPin, Plus, Brain } from 'lucide-react';
+import { AlertCircle, Ambulance, Bell, CheckCircle, Clock, MapPin, Plus, Brain, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -303,28 +303,42 @@ const Emergency = () => {
   
   return (
     <Layout>
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Emergency Management</h1>
-          <p className="text-gray-500">Handle critical situations efficiently</p>
+      <div className="mesh-bg" />
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-12 animate-fade-in">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-500/10 rounded-xl">
+              <AlertCircle className="h-6 w-6 text-red-600 animate-pulse" />
+            </div>
+            <h1 className="text-4xl font-black medical-gradient-text tracking-tighter">Emergency Management</h1>
+          </div>
+          <p className="text-muted-foreground font-medium">Coordinate life-critical responses and AI-powered triage dispatch.</p>
         </div>
         <div className="flex gap-2 mt-4 md:mt-0">
           <Button 
             variant="outline"
             onClick={() => setShowTriagePrediction(!showTriagePrediction)}
-            className="flex items-center"
+            className="flex items-center h-12 px-6 rounded-2xl glass border-white/20 font-bold"
           >
-            <Brain className="mr-1 h-4 w-4" />
-            AI Triage Assistant
+            <Brain className="mr-2 h-5 w-5 text-primary" />
+            AI Triage
           </Button>
           <Button 
             onClick={() => setIsCreating(!isCreating)}
-            className="flex items-center"
+            className={cn(
+              "flex items-center h-12 px-8 rounded-2xl font-black shadow-xl transition-all duration-300",
+              isCreating 
+                ? "bg-white dark:bg-gray-900 text-foreground border border-white/20" 
+                : "bg-red-600 text-white hover:bg-red-700 shadow-red-600/20"
+            )}
           >
-            {isCreating ? 'Cancel' : (
+            {isCreating ? (
               <>
-                <Plus className="mr-1 h-4 w-4" />
-                Report Emergency
+                <X className="mr-2 h-5 w-5" /> Cancel
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-5 w-5" /> Report Emergency
               </>
             )}
           </Button>
