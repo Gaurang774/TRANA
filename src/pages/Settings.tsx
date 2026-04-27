@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -130,7 +131,5 @@ const Settings = () => {
     </Layout>
   );
 };
-
-const cn = (...inputs: any[]) => inputs.filter(Boolean).join(' ');
 
 export default Settings;
