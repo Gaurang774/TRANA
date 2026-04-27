@@ -14,6 +14,7 @@ import { SystemAlerts } from '@/components/alerts/SystemAlerts';
 import { NotificationSystem } from '@/components/enhanced/NotificationSystem';
 import { useEmergencies, useAmbulances, useHospitalBeds } from '@/hooks/useSupabaseQuery';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Ambulance, AlertTriangle, Clock, Users, Bed, Activity, TrendingUp, TrendingDown, Shield, Zap, BarChart3, Globe, ExternalLink, Heart, Home } from 'lucide-react';
 import { RoleBasedAccess } from '@/components/enhanced/RoleBasedAccess';
 
