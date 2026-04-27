@@ -23,31 +23,38 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
   const [showKeyInput, setShowKeyInput] = useState<boolean>(false);
   const [mapError, setMapError] = useState<string>('');
 
-  // Initialize API key from props, localStorage, or default
+  // Initialize API key from props, env, localStorage, or prompt user
   useEffect(() => {
     let keyToUse = '';
     
     if (apiKey) {
       keyToUse = apiKey;
     } else {
+      // Priority: env variable → localStorage → prompt user
+      const envKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       const savedKey = localStorage.getItem('google_maps_api_key');
-      if (savedKey) {
+      
+      if (envKey && envKey !== 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
+        keyToUse = envKey;
+      } else if (savedKey) {
         keyToUse = savedKey;
-      } else {
-        keyToUse = 'AIzaSyBbiL-W_D_bst3kVbMAJJ1-oGviBO9-P0w';
       }
     }
     
     setMapApiKey(keyToUse);
     
     // Show key input if no valid key is available
-    if (!keyToUse || keyToUse === 'YOUR_API_KEY_HERE') {
+    if (!keyToUse || keyToUse === 'YOUR_API_KEY_HERE' || keyToUse === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
       setShowKeyInput(true);
     }
   }, [apiKey]);
 
-  // Expose calculateRoute method to parent component via ref
   useImperativeHandle(ref, () => ({
+    toggleMapType: () => {
+      if (!map) return;
+      const currentType = map.getMapTypeId();
+      map.setMapTypeId(currentType === 'roadmap' ? 'hybrid' : 'roadmap');
+    },
     calculateRoute: (origin: string, destination: string) => {
       if (!directionsService || !directionsRenderer) {
         console.error('Directions service not initialized');
@@ -115,10 +122,19 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
         const newMap = new google.maps.Map(mapContainer.current, {
           center: { lat: 20.5937, lng: 78.9629 }, // Center on India
           zoom: 5,
+          mapTypeId: google.maps.MapTypeId.HYBRID, // "Photo type" by default for city-to-city
           mapTypeControl: true,
           streetViewControl: true,
           fullscreenControl: true,
           zoomControl: true,
+          gestureHandling: 'greedy',
+          styles: [
+            {
+              featureType: "poi",
+              elementType: "labels",
+              stylers: [{ visibility: "off" }]
+            }
+          ]
         });
 
         // Add hospitals as markers
@@ -187,12 +203,44 @@ const GoogleMap = forwardRef<any, GoogleMapProps>(({ className, apiKey }, ref) =
         const newDirectionsService = new google.maps.DirectionsService();
         const newDirectionsRenderer = new google.maps.DirectionsRenderer({
           map: newMap,
+          panel: document.getElementById('directions-panel'), // Attach to the panel in RoutePlanning.tsx
           suppressMarkers: false,
           polylineOptions: {
-            strokeColor: '#0066CC',
-            strokeWeight: 5,
-            strokeOpacity: 0.7
+            strokeColor: '#3b82f6', // primary blue
+            strokeWeight: 6,
+            strokeOpacity: 0.8
           }
+        });
+
+        // Add Search Box
+        const input = document.createElement('input');
+        input.placeholder = 'Search locations...';
+        input.className = 'glass p-2 m-2 rounded-lg shadow-lg border-primary/20 w-64 absolute top-2 left-2 z-[10] focus:ring-2 focus:ring-primary outline-none transition-all';
+        input.style.top = '10px';
+        input.style.left = '10px';
+        
+        const searchBox = new google.maps.places.SearchBox(input);
+        newMap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        // Bias the SearchBox results towards current map's viewport.
+        newMap.addListener("bounds_changed", () => {
+          searchBox.setBounds(newMap.getBounds() as google.maps.LatLngBounds);
+        });
+
+        searchBox.addListener("places_changed", () => {
+          const places = searchBox.getPlaces();
+          if (!places || places.length === 0) return;
+
+          const bounds = new google.maps.LatLngBounds();
+          places.forEach((place) => {
+            if (!place.geometry || !place.geometry.location) return;
+            if (place.geometry.viewport) {
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+          newMap.fitBounds(bounds);
         });
 
         setMap(newMap);

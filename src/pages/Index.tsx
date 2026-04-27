@@ -57,24 +57,24 @@ const Index = () => {
       {/* Enhanced Header Section with Enterprise Branding */}
       <div className="mb-8 lg:mb-10">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-12 h-12 bg-gradient-to-br from-medical-blue to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="h-7 w-7 text-white" />
+              <div className="flex items-center space-x-3">
+                <div className="w-14 h-14 medical-gradient rounded-2xl flex items-center justify-center shadow-medical">
+                  <Heart className="h-7 w-7 text-white animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+                  <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
                     TRANA Command Center
                   </h1>
                   <div className="flex items-center space-x-2 mt-1">
                     <Shield className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Smart Healthcare System</span>
+                    <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Smart Healthcare System</span>
                   </div>
                 </div>
               </div>
             </div>
-            <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300 font-medium max-w-2xl">
+            <p className="text-lg text-muted-foreground font-medium max-w-2xl">
               Real-time healthcare management with AI-powered insights, intelligent triage, and seamless multi-hospital coordination
             </p>
           </div>
@@ -82,7 +82,7 @@ const Index = () => {
           <div className="flex items-center space-x-4">
             {/* Public Landing Page Access */}
             <Link to="/landing">
-              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-emerald-100 transition-all duration-300">
+              <Button variant="outline" className="glass flex items-center space-x-2 text-primary hover:bg-primary/5 transition-all duration-300">
                 <Home className="h-4 w-4" />
                 <span>Public Site</span>
                 <ExternalLink className="h-3 w-3" />
@@ -91,7 +91,7 @@ const Index = () => {
             
             {/* Healthcare Portal Access */}
             <Link to="/healthcare">
-              <Button variant="outline" className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-200 text-blue-700 hover:from-blue-100 hover:to-emerald-100 transition-all duration-300">
+              <Button variant="outline" className="glass flex items-center space-x-2 text-primary hover:bg-primary/5 transition-all duration-300">
                 <Globe className="h-4 w-4" />
                 <span>Healthcare Portal</span>
                 <ExternalLink className="h-3 w-3" />
@@ -103,7 +103,7 @@ const Index = () => {
             
             {/* Analytics Quick Access */}
             <Link to="/analytics">
-              <Button variant="outline" className="flex items-center space-x-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <Button variant="outline" className="glass flex items-center space-x-2 text-foreground hover:bg-foreground/5 transition-all duration-300">
                 <BarChart3 className="h-4 w-4" />
                 <span>Analytics</span>
               </Button>
@@ -115,14 +115,14 @@ const Index = () => {
             </RoleBasedAccess>
             
             {/* System Status Indicator */}
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-xl flex items-center shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="glass px-6 py-3 rounded-xl flex items-center shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex items-center space-x-3">
                 <Zap className="h-5 w-5 text-emerald-500" />
                 <div>
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">System Online</span>
+                  <span className="text-sm font-semibold text-foreground">System Online</span>
                   <div className="flex items-center space-x-2 mt-0.5">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">99.9% uptime</span>
+                    <span className="text-xs text-muted-foreground">99.9% uptime</span>
                   </div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ const Index = () => {
           icon={<AlertTriangle className="h-6 w-6" />}
           trend={emergencyTrend}
           color="red"
-          className="hover:shadow-lg transition-shadow duration-300 animate-fade-in border-l-4 border-l-red-500"
+          className="glass-card hover:shadow-xl transition-all duration-300 animate-fade-in border-l-4 border-l-red-500"
         />
         <StatCard
           title="Available Ambulances"
@@ -147,14 +147,14 @@ const Index = () => {
           icon={<Ambulance className="h-6 w-6" />}
           trend={ambulanceTrend}
           color="blue"
-          className="hover:shadow-lg transition-shadow duration-300 animate-fade-in border-l-4 border-l-blue-500"
+          className="glass-card hover:shadow-xl transition-all duration-300 animate-fade-in border-l-4 border-l-blue-500"
         />
         <StatCard
           title="Patients in Transit"
           value={patientsInTransit.toString()}
           icon={<Users className="h-6 w-6" />}
           color="green"
-          className="hover:shadow-lg transition-shadow duration-300 animate-fade-in border-l-4 border-l-orange-500"
+          className="glass-card hover:shadow-xl transition-all duration-300 animate-fade-in border-l-4 border-l-orange-500"
         />
         <StatCard
           title="Available Beds"
@@ -162,20 +162,20 @@ const Index = () => {
           icon={<Bed className="h-6 w-6" />}
           trend={bedTrend}
           color="green"
-          className="hover:shadow-lg transition-shadow duration-300 animate-fade-in border-l-4 border-l-emerald-500"
+          className="glass-card hover:shadow-xl transition-all duration-300 animate-fade-in border-l-4 border-l-emerald-500"
         />
       </div>
       
       {/* Enhanced Operational Overview with Real-time Map */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 lg:gap-8 mb-8 lg:mb-10">
         <div className="xl:col-span-3">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+          <div className="glass-card rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
+            <div className="p-4 border-b border-border/50 bg-foreground/5">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">Real-time Emergency Map</h3>
+                <h3 className="font-semibold text-lg text-foreground">Real-time Emergency Map</h3>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">Live Updates</span>
+                  <span className="text-xs text-muted-foreground">Live Updates</span>
                 </div>
               </div>
             </div>
@@ -183,7 +183,7 @@ const Index = () => {
           </div>
         </div>
         <div className="xl:col-span-2">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="glass-card rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
             <HospitalBeds />
           </div>
         </div>
@@ -191,12 +191,12 @@ const Index = () => {
       
       {/* Enhanced Emergency Operations Center with Role-based Access */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="glass-card rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
           <RoleBasedAccess allowedRoles={['admin', 'dispatcher', 'doctor']}>
             <ActiveEmergencies />
           </RoleBasedAccess>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="glass-card rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden">
           <RoleBasedAccess allowedRoles={['admin', 'dispatcher']}>
             <EnhancedAmbulanceStatus />
           </RoleBasedAccess>

@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, User, Session } from '@/integrations/supabase/client';
 
 // Enhanced auth hook with better error handling
 export const useAuth = () => {

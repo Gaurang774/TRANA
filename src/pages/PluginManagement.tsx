@@ -1,14 +1,12 @@
+import ComingSoon from '@/components/ComingSoon';
+import { Puzzle } from 'lucide-react';
 
-import React from 'react';
-import Layout from '@/components/Layout';
-import PluginManager from '@/components/plugins/PluginManager';
-
-const PluginManagement = () => {
-  return (
-    <Layout>
-      <PluginManager />
-    </Layout>
-  );
-};
+const PluginManagement = () => (
+  <ComingSoon
+    title="Plugins"
+    description="Extend TRANA's capabilities with modular plugins for lab integration, telemedicine, and third-party health systems."
+    icon={<Puzzle className="h-8 w-8" />}
+  />
+);
 
 export default PluginManagement;

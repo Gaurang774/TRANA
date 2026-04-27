@@ -21,7 +21,8 @@ import {
   X,
   Puzzle,
   Pill,
-  Settings
+  Settings,
+  LocateFixed
 } from 'lucide-react';
 import { usePluginSystem } from '@/hooks/usePluginSystem';
 import { useQuery } from '@tanstack/react-query';
@@ -202,7 +203,26 @@ const RoutePlanningForm = ({ onRouteCalculate }: RoutePlanningFormProps) => {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="origin">Origin *</Label>
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="origin">Origin *</Label>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 text-xs text-primary flex items-center gap-1"
+                        onClick={() => {
+                          if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition((pos) => {
+                              setValue('origin', `${pos.coords.latitude}, ${pos.coords.longitude}`);
+                              toast({ title: "Location detected", description: "Origin set to current coordinates" });
+                            });
+                          }
+                        }}
+                      >
+                        <LocateFixed className="h-3 w-3" />
+                        Use Current
+                      </Button>
+                    </div>
                     <Input
                       id="origin"
                       {...register('origin')}
@@ -229,7 +249,8 @@ const RoutePlanningForm = ({ onRouteCalculate }: RoutePlanningFormProps) => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button type="button" onClick={handleQuickRoute} variant="outline" className="flex-1">
+                  <Button type="button" onClick={handleQuickRoute} className="flex-1 medical-gradient text-white border-none shadow-md hover:shadow-lg transition-all">
+                    <Navigation className="h-4 w-4 mr-2" />
                     Calculate Route
                   </Button>
                 </div>
